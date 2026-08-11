@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PolarisNexa 夥伴註冊預約</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body { background-color: #f4f7f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .card { border: none; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+    .btn-primary { background: linear-gradient(135deg, #0d6efd, #0a58ca); border: none; padding: 12px; font-weight: bold; border-radius: 10px; }
+    .btn-success { background: linear-gradient(135deg, #06c755, #00b900); border: none; padding: 14px; font-weight: bold; border-radius: 10px; font-size: 1.1rem; }
+    .profile-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #0d6efd; }
+    .ref-box { background-color: #eef2f7; border: 1px dashed #0d6efd; border-radius: 10px; padding: 12px; word-break: break-all; }
+  </style>
+</head>
+<body class="py-4">
+  <div class="container" style="max-width: 480px;">
+    
+    <!-- 表單卡片 -->
+    <div class="card p-4" id="formCard">
+      <div class="text-center mb-3">
+        <img id="userImg" src="https://via.placeholder.com/70" class="profile-img mb-2" alt="頭貼">
+        <h4 class="fw-bold mb-1">PolarisNexa 預約註冊</h4>
+        <p class="text-muted small">AI 負責流程，您負責維護人際關係</p>
+      </div>
+
+      <form id="regForm">
+        <input type="hidden" id="lineUserId" name="lineUserId">
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">真實姓名 <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="name" required placeholder="請輸入姓名">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">聯絡電話 <span class="text-danger">*</span></label>
+          <input type="tel" class="form-control" id="phone" required placeholder="0912345678">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">艾多美會員編號 (選填)</label>
+          <input type="text" class="form-control" id="atomyId" placeholder="若已有會員請填寫">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">推薦人代碼</label>
+          <input type="text" class="form-control" id="refId" placeholder="無推薦人則自動帶入 SYSTEM_ROOT">
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn btn-primary w-100 mt-2">提交預約註冊</button>
+      </form>
+    </div>
+
+    <!-- 成功導引與推薦連結卡片 -->
+    <div class="card p-4 text-center d-none" id="successCard">
+      <div class="my-2">
+        <div style="font-size: 50px;">🎉</div>
+        <h4 class="fw-bold text-success mb-2">預約資料已成功送出！</h4>
+        <p class="text-muted small mb-3">您的資料已順利建立，下方是您的個人專屬推薦連結：</p>
+        
+        <!-- 自動產生的專屬推薦連結區塊 -->
+        <div class="ref-box mb-3 text-start">
+          <div class="small fw-bold text-secondary mb-1">🔗 您的專屬推廣網址：</div>
+          <div id="myRefUrlDisplay" class="fw-bold text-primary small mb-2">產生中...</div>
+          <button id="copyBtn" class="btn btn-sm btn-outline-primary w-100 mb-1">📋 複製推薦連結</button>
+        </div>
+
+        <button id="lineBotBtn" class="btn btn-success w-100 shadow mb-2">
+          💬 開啟 / 加入 LINE AI 機器人
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const LINE_BOT_ADD_LINK = "https://lin.ee/ZsTNJz4x";
+    const BASE_LIFF_URL = "https://liff.line.me/2011043455-z9yvj9dV";
+
+    async function main() {
+      try {
+        await liff.init({ liffId: "2011043455-z9yvj9dV" });
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          document.getElementById("lineUserId").value = profile.userId || "";
+          document.getElementById("userImg").src = profile.pictureUrl || "https://via.placeholder.com/70";
+          
+          // 強效解析 URL query 及 liff.state 裡面的 ref 參數
+          let refCode = getQueryParam("ref");
+          if (!refCode && window.location.href.includes("liff.state")) {
+            const rawState = window.location.href.split("liff.state=")[1];
+            if (rawState) {
+              const decodedState = decodeURIComponent(rawState);
+              const match = decodedState.match(/[?&]ref=([^&]+)/);
+              if (match) refCode = match[1];
+            }
+          }
+
+          const refInput = document.getElementById("refId");
+          if (refCode) {
+            refInput.value = refCode;
+            refInput.readOnly = true;
+            refInput.style.backgroundColor = "#e9ecef";
+          } else {
+            refInput.value = "SYSTEM_ROOT";
+          }
+        } else {
+          liff.login();
+        }
+      } catch (err) {
+        console.error("LIFF 初始化失敗:", err);
+      }
+    }
+
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    main();
+
+    // 提交表單
+    document.getElementById("regForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.innerText = "正在傳送資料...";
+
+      const payload = {
+        userId: document.getElementById("lineUserId").value,
+        name: document.getElementById("name").value,
+        phone: document.getElementById("phone").value,
+        atomyId: document.getElementById("atomyId").value,
+        refId: document.getElementById("refId").value || "SYSTEM_ROOT"
+      };
+
+      // 呼叫 GAS 後端
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            handleSuccessResponse(res, payload);
+          })
+          .withFailureHandler(function(err) {
+            handleSuccessResponse(null, payload);
+          })
+          .processRegisterForm(payload);
+      } else {
+        handleSuccessResponse(null, payload);
+      }
+    });
+
+    function handleSuccessResponse(res, payload) {
+      document.getElementById("formCard").classList.add("d-none");
+      document.getElementById("successCard").classList.remove("d-none");
+
+      // 算個人的推薦連結
+      let myCode = (res && res.myRefCode) ? res.myRefCode : (payload.atomyId || payload.userId || "ROOT");
+      let myUrl = BASE_LIFF_URL + "/?ref=" + encodeURIComponent(myCode);
+
+      document.getElementById("myRefUrlDisplay").innerText = myUrl;
+
+      // 複製按鈕功能
+      document.getElementById("copyBtn").onclick = function() {
+        navigator.clipboard.writeText(myUrl).then(function() {
+          alert("專屬推薦連結已複製到剪貼簿！");
+        }).catch(function() {
+          alert("複製連結： " + myUrl);
+        });
+      };
+    }
+
+    // 開啟機器人按鈕（外部開啟，防止白畫面）
+    document.getElementById("lineBotBtn").addEventListener("click", function(e) {
+      e.preventDefault();
+      if (typeof liff !== "undefined" && liff.isInClient()) {
+        liff.openWindow({
+          url: LINE_BOT_ADD_LINK,
+          external: true
+        });
+      } else {
+        window.location.href = LINE_BOT_ADD_LINK;
+      }
+    });
+  </script>
+</body>
+</html>
