@@ -76,6 +76,8 @@
   </div>
 
   <script>
+    // ⚙️ 設定區：請將下方的 GAS Web App 網址替換為您的 Google Apps Script 部署網址
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyHUFyh_85Bz8pSfJsJMP2dlvNTu6K97McSGKfOknbKUHyx52XxA36s6F2A4_57j6M/exec";
     const LINE_BOT_ADD_LINK = "https://lin.ee/ZsTNJz4x";
     const BASE_LIFF_URL = "https://liff.line.me/2011043455-z9yvj9dV";
 
@@ -107,6 +109,7 @@
             refInput.value = "SYSTEM_ROOT";
           }
         } else {
+          // LIFF 登入，不帶 redirectUri 避免強制重導回舊頁面
           liff.login();
         }
       } catch (err) {
@@ -121,8 +124,8 @@
 
     main();
 
-    // 提交表單
-    document.getElementById("regForm").addEventListener("submit", function(e) {
+    // 提交表單（採用 API 異步傳送，不換頁）
+    document.getElementById("regForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const btn = document.getElementById("submitBtn");
       btn.disabled = true;
@@ -136,17 +139,18 @@
         refId: document.getElementById("refId").value || "SYSTEM_ROOT"
       };
 
-      // 呼叫 GAS 後端
-      if (typeof google !== "undefined" && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(function(res) {
-            handleSuccessResponse(res, payload);
-          })
-          .withFailureHandler(function(err) {
-            handleSuccessResponse(null, payload);
-          })
-          .processRegisterForm(payload);
-      } else {
+      try {
+        // 使用 fetch 送出 POST 請求至 GAS 後端
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+
+        const res = await response.json();
+        handleSuccessResponse(res, payload);
+      } catch (err) {
+        console.warn("後端 API 傳送回應預期外，仍執行前端成功畫面:", err);
         handleSuccessResponse(null, payload);
       }
     });
@@ -155,7 +159,7 @@
       document.getElementById("formCard").classList.add("d-none");
       document.getElementById("successCard").classList.remove("d-none");
 
-      // 算個人的推薦連結
+      // 計算個人的推薦連結
       let myCode = (res && res.myRefCode) ? res.myRefCode : (payload.atomyId || payload.userId || "ROOT");
       let myUrl = BASE_LIFF_URL + "/?ref=" + encodeURIComponent(myCode);
 
