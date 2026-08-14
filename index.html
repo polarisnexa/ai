@@ -42,6 +42,12 @@
           <input type="tel" class="form-control" id="phone" required placeholder="0912345678">
         </div>
 
+        <!-- 📌 新增 LINE ID 欄位 -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">LINE ID <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="lineId" required placeholder="請輸入您的 LINE ID (若無請填手機)">
+        </div>
+
         <div class="mb-3">
           <label class="form-label fw-bold">推薦人系統編號</label>
           <input type="text" class="form-control" id="refId" placeholder="帶入推薦人專屬連結中..." readonly>
@@ -65,7 +71,7 @@
         </div>
 
         <button id="lineBotBtn" class="btn btn-success w-100 shadow mb-2">
-          💬 開啟 / 加入 LINE AI 機器人
+          💬 開開啟 / 加入 LINE AI 機器人
         </button>
       </div>
     </div>
@@ -73,7 +79,7 @@
   </div>
 
   <script>
-    // ⚙️ 設定區：請將下方的 GAS Web App 網址替換為您的 Google Apps Script 部署網址
+    // ⚙️ 設定區
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyHUFyh_85Bz8pSfJsJMP2dlvNTu6K97McSGKfOknbKUHyx52XxA36s6F2A4_57j6M/exec";
     const LINE_BOT_ADD_LINK = "https://lin.ee/ZsTNJz4x";
 
@@ -124,7 +130,6 @@
       const inputs = document.querySelectorAll("#regForm input:not([type='hidden'])");
 
       if (!refCode || refCode === "") {
-        // ❌ 無 ref 網址：顯示 SEO 關鍵字提示，並鎖定表單
         const msg = "⚠️ 提示：請聯絡您的介紹人索取註冊連結，或者透過網路搜尋「AI 自動化團隊經營系統」找到專屬團隊連結。";
         
         alertBox.innerHTML = `<div class="alert alert-danger fw-bold small mb-3">${msg}</div>`;
@@ -137,7 +142,6 @@
         submitBtn.innerText = "請透過介紹人專屬連結預約";
         submitBtn.className = "btn btn-secondary w-100 mt-2";
       } else {
-        // ✅ 有 ref 網址：帶入推薦人代碼並允許填寫
         refInput.value = refCode;
         refInput.style.backgroundColor = "#e9ecef";
       }
@@ -158,10 +162,12 @@
       btn.disabled = true;
       btn.innerText = "正在傳送資料...";
 
+      // 📌 封裝 payload 資料，加入 lineId
       const payload = {
         userId: document.getElementById("lineUserId").value,
         name: document.getElementById("name").value,
         phone: document.getElementById("phone").value,
+        lineId: document.getElementById("lineId").value, // 📌 新增 LINE ID 欄位
         ref: currentRefCode,
         refId: currentRefCode
       };
