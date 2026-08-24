@@ -21,10 +21,10 @@
     <!-- 表單卡片 -->
     <div class="card p-4" id="formCard">
       
-      <!-- 📌 頂部宣傳 Banner 圖片與連結 -->
+      <!-- 📌 頂部宣傳 Banner 圖片與連結（已優化相容 LINE 內建瀏覽器） -->
       <div class="mb-3 text-center">
-        <a href="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyNewMemberGift.jpg" target="_blank" rel="noopener noreferrer">
-          <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyNewMemberGift.jpg" class="img-fluid rounded-3 shadow-sm" alt="新會員好禮宣傳海報">
+        <a href="https://cdn.jsdelivr.net/gh/polarisnexa/ai@main/atomy/AtomyNewMemberGift.jpg" target="_blank" rel="noopener noreferrer">
+          <img src="https://cdn.jsdelivr.net/gh/polarisnexa/ai@main/atomy/AtomyNewMemberGift.jpg" class="img-fluid rounded-3 shadow-sm" alt="新會員好禮宣傳海報" loading="eager" crossorigin="anonymous">
         </a>
       </div>
 
@@ -50,7 +50,7 @@
           <input type="tel" class="form-control" id="phone" required placeholder="0912345678">
         </div>
 
-        <!-- 📌 LINE ID 欄位 -->
+        <!-- LINE ID 欄位 -->
         <div class="mb-3">
           <label class="form-label fw-bold">LINE ID <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="lineId" required placeholder="請輸入您的 LINE ID (若無請填手機)">
@@ -170,12 +170,11 @@
       btn.disabled = true;
       btn.innerText = "正在傳送資料...";
 
-      // 📌 封裝 payload 資料，加入 lineId
       const payload = {
         userId: document.getElementById("lineUserId").value,
         name: document.getElementById("name").value,
         phone: document.getElementById("phone").value,
-        lineId: document.getElementById("lineId").value, // 📌 新增 LINE ID 欄位
+        lineId: document.getElementById("lineId").value,
         ref: currentRefCode,
         refId: currentRefCode
       };
