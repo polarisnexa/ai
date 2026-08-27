@@ -26,7 +26,7 @@
             background-color: var(--bg-color);
             color: var(--text-dark);
             line-height: 1.7;
-            padding-bottom: 90px; /* 為底部固定按鈕留空 */
+            padding-bottom: 90px;
         }
 
         .container {
@@ -35,10 +35,55 @@
             padding: 20px;
         }
 
+        /* 💡 倒數提示橫條樣式 (毫秒級極速計時) */
+        .countdown-banner {
+            background: linear-gradient(135deg, #E63946, #D90429);
+            color: #FFFFFF;
+            text-align: center;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.25);
+        }
+
+        .countdown-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .timer-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Courier New', Courier, monospace, sans-serif;
+            font-weight: 900;
+            font-size: 1.25rem;
+        }
+
+        .timer-unit {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 3px 6px;
+            border-radius: 6px;
+            min-width: 32px;
+            display: inline-block;
+        }
+
+        .timer-ms {
+            background: #FFFFFF;
+            color: #D90429;
+            padding: 3px 6px;
+            border-radius: 6px;
+            min-width: 36px;
+            display: inline-block;
+        }
+
         /* 標題與視覺區 */
         .header {
             text-align: center;
-            padding: 20px 0;
+            padding: 10px 0 20px 0;
         }
 
         .header h1 {
@@ -231,7 +276,7 @@
             gap: 8px;
             width: 100%;
             max-width: 640px;
-            background: linear-gradient(135deg, #06C755, #00B900); /* LINE 主題綠色 */
+            background: linear-gradient(135deg, #06C755, #00B900);
             color: white;
             font-size: 1.15rem;
             font-weight: bold;
@@ -259,12 +304,27 @@
             .gift-badge {
                 margin-bottom: 0;
             }
+            .timer-display {
+                font-size: 1.05rem;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
+        <!-- 💡 毫秒級高感官時光飛逝計時橫條 -->
+        <div class="countdown-banner">
+            <div class="countdown-title">⏰ 活動倒數計時 🚨 優惠即將截止</div>
+            <div class="timer-display" id="timer">
+                <span class="timer-unit" id="d">00</span>天
+                <span class="timer-unit" id="h">00</span>時
+                <span class="timer-unit" id="m">00</span>分
+                <span class="timer-unit" id="s">00</span>秒
+                <span class="timer-ms" id="ms">00</span>
+            </div>
+        </div>
+
         <!-- 頂部文案與主圖 -->
         <div class="header">
             <h1>☕️ 每天喝咖啡的人，這次不只省下200元，還能多一個「AI經營助手」！🤖🎁</h1>
@@ -324,7 +384,7 @@
         <!-- 使用方式圖片展示 -->
         <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyCoffeeDirections1.gif" alt="咖啡沖泡方式" class="main-img">
 
-        <!-- 卡片 3：AI 經營輔助系統 (焦點亮點) -->
+        <!-- 卡片 3：AI 經營輔助系統 -->
         <div class="card ai-card">
             <h2 class="card-title">🤖 這次，我更想跟你分享另一個重點！</h2>
             <p style="margin-bottom: 12px; color: #e2e8f0;">如果你加入後不只是想「買東西省一點」，而是思考過：</p>
@@ -380,25 +440,46 @@
         </a>
     </div>
 
-    <!-- 自動帶入 ref 參數腳本 -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // 取得網址列中的查詢參數
+            // 1. 自動帶入 ref 參數腳本
             const urlParams = new URLSearchParams(window.location.search);
-            // 抓取 ref 參數，若沒有則預設空白
             const refCode = urlParams.get('ref') || '';
-            
-            // 基礎 LIFF 網址
             const baseLiffUrl = "https://liff.line.me/2011043455-z9yvj9dV/?ref=";
-            
-            // 組合最終的按鈕連結
             const finalUrl = baseLiffUrl + encodeURIComponent(refCode);
             
-            // 綁定至按鈕
             const liffButton = document.getElementById("liff-link");
             if (liffButton) {
                 liffButton.href = finalUrl;
             }
+
+            // 2. 毫秒級倒數計時腳本 (目標日期：2026/08/31 23:59:59)
+            const targetDate = new Date("2026-08-31T23:59:59").getTime();
+
+            function updateTimer() {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+
+                if (diff <= 0) {
+                    document.getElementById("timer").innerHTML = "⚠️ 本期優惠活動已結束";
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                const milliseconds = Math.floor((diff % 1000) / 10);
+
+                document.getElementById("d").innerText = String(days).padStart(2, '0');
+                document.getElementById("h").innerText = String(hours).padStart(2, '0');
+                document.getElementById("m").innerText = String(minutes).padStart(2, '0');
+                document.getElementById("s").innerText = String(seconds).padStart(2, '0');
+                document.getElementById("ms").innerText = String(milliseconds).padStart(2, '0');
+            }
+
+            // 每 10 毫秒更新一次畫面
+            setInterval(updateTimer, 10);
         });
     </script>
 </body>
