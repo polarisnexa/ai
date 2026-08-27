@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艾多美阿拉比卡黑咖啡 | 享受優惠與AI經營新體驗</title>
+    <style>
+        :root {
+            --primary-color: #6F4E37;
+            --secondary-color: #D2B48C;
+            --accent-color: #E63946;
+            --bg-color: #FAF8F5;
+            --card-bg: #FFFFFF;
+            --text-dark: #2B2D42;
+            --text-muted: #6C757D;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            line-height: 1.7;
+            padding-bottom: 90px; /* 為底部固定按鈕留空 */
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 標題與視覺區 */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .main-img {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        /* 卡片共用樣式 */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 8px;
+        }
+
+        /* 商品亮點與價格計算 */
+        .feature-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .feature-list li {
+            margin-bottom: 8px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: "✔️";
+            position: absolute;
+            left: 0;
+        }
+
+        .price-calculator {
+            background-color: #FFF9F3;
+            border: 2px dashed var(--secondary-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .price-step {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .price-arrow {
+            color: var(--secondary-color);
+            margin: 4px 0;
+        }
+
+        .price-final {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            font-weight: 800;
+        }
+
+        .price-unit {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* 好禮三重送禮盒 */
+        .gift-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .gift-item {
+            background-color: #F8F9FA;
+            border-radius: 10px;
+            padding: 12px 8px;
+            border: 1px solid #E9ECEF;
+        }
+
+        .gift-badge {
+            font-size: 0.8rem;
+            color: white;
+            background-color: var(--secondary-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .gift-title {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .gift-desc {
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* AI 系統特色 */
+        .ai-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+        }
+
+        .ai-card .card-title {
+            color: #38bdf8;
+            border-bottom-color: #334155;
+        }
+
+        .ai-questions {
+            list-style: none;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        .ai-questions li {
+            margin-bottom: 6px;
+        }
+
+        .ai-highlights {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .ai-highlights div {
+            margin-bottom: 8px;
+        }
+
+        /* 活動時間與注意事項 */
+        .notice-box {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-top: 16px;
+            border-top: 1px solid #E9ECEF;
+            padding-top: 16px;
+        }
+
+        /* 底部固定按鈕 */
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 12px 20px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .cta-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 640px;
+            background: linear-gradient(135deg, #06C755, #00B900); /* LINE 主題綠色 */
+            color: white;
+            font-size: 1.15rem;
+            font-weight: bold;
+            padding: 14px;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 480px) {
+            .gift-grid {
+                grid-template-columns: 1fr;
+            }
+            .gift-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 16px;
+            }
+            .gift-badge {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 頂部文案與主圖 -->
+        <div class="header">
+            <h1>☕️ 每天喝咖啡的人，這次不只省下200元，還能多一個「AI經營助手」！🤖🎁</h1>
+            <p>如果你本來就有喝咖啡的習慣，那這次的艾多美新會員活動，真的可以了解一下。</p>
+        </div>
+
+        <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyCoffee.jpg" alt="艾多美阿拉比卡黑咖啡" class="main-img">
+
+        <!-- 卡片 1：咖啡特色與價格優惠 -->
+        <div class="card">
+            <h2 class="card-title">☕️ 艾多美 ARABICA BLACK 阿拉比卡黑咖啡</h2>
+            <ul class="feature-list">
+                <li>嚴選阿拉比卡咖啡豆</li>
+                <li>香味濃郁、口感滑順</li>
+                <li>一盒 80 包大容量</li>
+            </ul>
+
+            <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyCoffeeARABICA.gif" alt="阿拉比卡咖啡特色" class="main-img" style="margin-top:10px;">
+
+            <div class="price-calculator">
+                <div class="price-step">原價一盒 NT$460</div>
+                <div class="price-arrow">⬇️ 搭配新會員 NT$200 入會禮折價券 ⬇️</div>
+                <div class="price-final">🔥 只要 NT$260！</div>
+                <div class="price-unit">平均一包只要約 3.25 元</div>
+            </div>
+        </div>
+
+        <!-- 卡片 2：新會員三重禮 -->
+        <div class="card">
+            <h2 class="card-title">🎁 新會員好禮三重送</h2>
+            <p>而且這還只是第一重優惠！</p>
+            
+            <div class="gift-grid">
+                <div class="gift-item">
+                    <span class="gift-badge">🥇 第1重</span>
+                    <div class="gift-title">入會禮</div>
+                    <div class="gift-desc">NT$200 折價券</div>
+                </div>
+                <div class="gift-item">
+                    <span class="gift-badge">🥈 第2重</span>
+                    <div class="gift-title">首購禮</div>
+                    <div class="gift-desc">NT$100 折價券</div>
+                </div>
+                <div class="gift-item">
+                    <span class="gift-badge">🥉 第3重</span>
+                    <div class="gift-title">回購禮</div>
+                    <div class="gift-desc">商品免運券</div>
+                </div>
+            </div>
+
+            <div style="background-color: #F8F9FA; border-left: 4px solid var(--secondary-color); padding: 12px; border-radius: 4px; margin-top: 16px; font-size: 0.9rem;">
+                💡 <strong>貼心提醒：</strong>優惠券發送日起 <strong>30天內</strong> 皆可使用！<br>
+                可以先完成認證鎖定資格，30天內有需要再使用，完全不用急著今天全買完！
+            </div>
+        </div>
+
+        <!-- 使用方式圖片展示 -->
+        <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyCoffeeDirections1.gif" alt="咖啡沖泡方式" class="main-img">
+
+        <!-- 卡片 3：AI 經營輔助系統 (焦點亮點) -->
+        <div class="card ai-card">
+            <h2 class="card-title">🤖 這次，我更想跟你分享另一個重點！</h2>
+            <p style="margin-bottom: 12px; color: #e2e8f0;">如果你加入後不只是想「買東西省一點」，而是思考過：</p>
+            
+            <ul class="ai-questions">
+                <li>❓ 新會員加入後該做什麼？</li>
+                <li>❓ 不知道從哪裡開始怎麼辦？</li>
+                <li>❓ 團隊經營很多事情記不住怎麼辦？</li>
+                <li>❓ 有沒有更簡單、更有系統的方法？</li>
+            </ul>
+
+            <p style="color: #38bdf8; font-weight: bold;">🌟 我們正在建立一套：AI經營輔助系統</p>
+            <p style="font-size: 0.95rem; color: #cbd5e1; margin-top: 6px;">讓 AI 協助處理大量重複性的資訊與流程，把複雜的事情變得更簡單，讓你不用一個人摸索。</p>
+
+            <div class="ai-highlights">
+                <p style="text-align: center; font-weight: bold; margin-bottom: 10px; color: #f1f5f9;">「AI負責流程，人負責關係」</p>
+                <div>❤️ 陪伴家人</div>
+                <div>🤝 陪伴夥伴</div>
+                <div>💬 建立信任</div>
+                <div>🌱 學習與成長</div>
+            </div>
+        </div>
+
+        <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/atomy/AtomyCoffeeDirections2.jpg" alt="產品細節與優勢" class="main-img">
+
+        <!-- 卡片 4：活動說明與結語 -->
+        <div class="card">
+            <h2 class="card-title">⏰ 活動時間與資格說明</h2>
+            <p>先從一杯咖啡開始，認識一個新的消費選擇，再慢慢了解一套更有效率的 AI 經營方式。</p>
+
+            <div style="margin: 16px 0; background: #FFF; border: 1px solid #FFE3E3; border-radius: 8px; padding: 12px; color: var(--accent-color); font-weight: bold;">
+                📅 活動期間：2026/5/14 ～ 2026/8/31<br>
+                ⚠️ 限 2026/8/31 前完成認證的新註冊會員
+            </div>
+
+            <p style="font-size: 0.95rem; color: var(--text-dark);">
+                先進來了解，不需要一次把所有事情都弄懂。有人帶、有人教，再搭配 AI 工具，一步一步來就好。😊<br><br>
+                如果本來就會喝咖啡，何不趁這次優惠，順便認識一個新的可能？
+            </p>
+
+            <div class="notice-box">
+                📌 優惠券自發送日起30天內皆可使用。<br>
+                📌 超商取貨滿 NT$1,000 免運。<br>
+                📌 優惠券實際適用商品及使用方式依活動公告為準。
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部固定導向按鈕 -->
+    <div class="sticky-footer">
+        <a id="liff-link" href="#" class="cta-button">
+            🤖 立即進入｜AI經營輔助系統
+        </a>
+    </div>
+
+    <!-- 自動帶入 ref 參數腳本 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 取得網址列中的查詢參數
+            const urlParams = new URLSearchParams(window.location.search);
+            // 抓取 ref 參數，若沒有則預設空白
+            const refCode = urlParams.get('ref') || '';
+            
+            // 基礎 LIFF 網址
+            const baseLiffUrl = "https://liff.line.me/2011043455-z9yvj9dV/?ref=";
+            
+            // 組合最終的按鈕連結
+            const finalUrl = baseLiffUrl + encodeURIComponent(refCode);
+            
+            // 綁定至按鈕
+            const liffButton = document.getElementById("liff-link");
+            if (liffButton) {
+                liffButton.href = finalUrl;
+            }
+        });
+    </script>
+</body>
+</html>
