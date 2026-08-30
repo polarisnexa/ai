@@ -26,7 +26,7 @@
 
         #map {
             width: 100%;
-            height: 40vh;
+            height: 38vh;
             z-index: 1;
         }
 
@@ -70,25 +70,40 @@
             cursor: pointer;
         }
 
-        .quick-tags {
+        /* 橫向滑動所有地區標籤 */
+        .quick-tags-container {
             display: flex;
             align-items: center;
             gap: 6px;
             overflow-x: auto;
             white-space: nowrap;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .quick-tags-label {
             font-size: 0.8rem;
             color: #666;
-            padding-bottom: 2px;
+            font-weight: bold;
+            flex-shrink: 0;
         }
 
         .tag-btn {
             background: #e9ecef;
             color: #495057;
             border: none;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 0.82rem;
+            font-weight: 500;
             cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .tag-btn:active {
+            background: #06C755;
+            color: white;
         }
 
         .locate-btn {
@@ -215,30 +230,29 @@
     <div id="map"></div>
 
     <div class="control-bar">
+        <!-- 搜尋列 -->
         <div class="search-box">
-            <input type="text" id="search-input" class="search-input" placeholder="輸入地區（建議2字，如：新莊、板橋）" onkeypress="handleKeyPress(event)">
+            <input type="text" id="search-input" class="search-input" placeholder="輸入地區（如：新莊、板橋）" onkeypress="handleKeyPress(event)">
             <button class="search-btn" onclick="searchByKeyword()">搜尋</button>
         </div>
 
-        <div class="quick-tags">
-            <span>快捷搜尋：</span>
-            <button class="tag-btn" onclick="quickSearch('新莊')">新莊</button>
-            <button class="tag-btn" onclick="quickSearch('板橋')">板橋</button>
-            <button class="tag-btn" onclick="quickSearch('中壢')">中壢</button>
-            <button class="tag-btn" onclick="quickSearch('中和')">中和</button>
-            <button class="tag-btn" onclick="quickSearch('桃園')">桃園</button>
+        <!-- 所有地區標籤（自動生成） -->
+        <div class="quick-tags-container">
+            <span class="quick-tags-label">📍 地區：</span>
+            <div id="tags-wrapper" style="display: flex; gap: 6px;"></div>
         </div>
 
+        <!-- 10km GPS 定位按鈕 -->
         <button class="locate-btn" onclick="locateUser()">📍 搜尋周圍 10 公里教育中心</button>
     </div>
 
     <div class="list-container">
         <div class="list-title">
             <span>教育中心列表</span>
-            <span id="result-count" style="font-weight: normal; font-size: 0.85rem; color: #6c757d;">請輸入地區關鍵字</span>
+            <span id="result-count" style="font-weight: normal; font-size: 0.85rem; color: #6c757d;">請點選地區或輸入搜尋</span>
         </div>
         <div id="center-list">
-            <div class="empty-tip">請輸入兩字區域（例如：新莊、板橋）或點擊快捷按鈕搜尋。</div>
+            <div class="empty-tip">請點擊上方地區標籤，或點擊「搜尋周圍 10 公里教育中心」。</div>
         </div>
     </div>
 
@@ -253,6 +267,7 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
+        // 教育中心完整資料庫
         const atomyCenters = [
             { name: "艾多美 桃園龜山教育中心", lat: 24.9942, lng: 121.3382, address: "桃園市龜山區萬壽路二段725號", phone: "03-3505566" },
             { name: "艾多美 三峽碩澄教育中心", lat: 24.9351, lng: 121.3698, address: "新北市三峽區大同路220號1樓", phone: "02-26728841" },
@@ -269,6 +284,28 @@
 
         let userMarker = null;
         let markersGroup = L.layerGroup().addTo(map);
+
+        // 自動從資料庫提取不重複的「2字地區標籤」
+        function initQuickTags() {
+            const wrapper = document.getElementById('tags-wrapper');
+            const districtSet = new Set();
+
+            atomyCenters.forEach(c => {
+                // 正則匹配「區」或「市」前面的兩位地區名稱
+                const match = c.address.match(/([\u4e00-\u9fa5]{2})[區市]/);
+                if (match && match[1]) {
+                    districtSet.add(match[1]);
+                }
+            });
+
+            districtSet.forEach(district => {
+                const btn = document.createElement('button');
+                btn.className = 'tag-btn';
+                btn.innerText = district;
+                btn.onclick = () => quickSearch(district);
+                wrapper.appendChild(btn);
+            });
+        }
 
         function getDistanceKm(lat1, lon1, lat2, lon2) {
             const R = 6371;
@@ -299,7 +336,6 @@
             };
         }
 
-        // 搜尋邏輯：自動修整並限定前 2 個字進行最佳化比對
         function searchByKeyword() {
             let rawQuery = document.getElementById('search-input').value.trim();
             
@@ -308,13 +344,9 @@
                 return;
             }
 
-            // 先清洗常見行政區尾綴詞
             let cleanQuery = rawQuery.replace(/(新北市|臺北市|台北市|桃園市|台中市|臺中市|高雄市|市|區|縣|教育中心|艾多美)/g, "").trim();
-            if (cleanQuery.length === 0) {
-                cleanQuery = rawQuery;
-            }
+            if (cleanQuery.length === 0) cleanQuery = rawQuery;
 
-            // 限制僅取前 2 個字為核心地名
             const query = cleanQuery.substring(0, 2);
 
             markersGroup.clearLayers();
@@ -379,7 +411,7 @@
                 renderList(nearbyCenters, `找到 ${nearbyCenters.length} 間據點 (10km內)`);
 
             }, error => {
-                alert("無法獲取定位權限，請開啟 GPS 或手動輸入地區搜尋。");
+                alert("無法獲取定位權限，請開啟 GPS 或點選地區標籤。");
             }, { enableHighAccuracy: true });
         }
 
@@ -391,7 +423,7 @@
             countEl.innerText = statusText || `找到 ${centers.length} 間據點`;
 
             if (centers.length === 0) {
-                listEl.innerHTML = '<div class="empty-tip">未找到相關教育中心，請輸入 2 字區域（如：板橋）。</div>';
+                listEl.innerHTML = '<div class="empty-tip">未找到相關教育中心，請選擇其他地區標籤。</div>';
                 return;
             }
 
@@ -516,6 +548,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
+            initQuickTags(); // 初始化自動生成地區標籤
             liff.init({ liffId: LIFF_ID }).catch(err => console.error("LIFF 初始化失敗:", err));
         });
     </script>
