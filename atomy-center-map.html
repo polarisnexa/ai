@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>艾多美教育中心地圖</title>
+
+    <!-- 1. 引入 OpenStreetMap 免費地圖套件 (Leaflet.js) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- 2. 引入 LINE LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* 底部懸浮定位按鈕列 */
+        .info-panel {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 16px;
+            border-radius: 30px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .locate-btn {
+            background: linear-gradient(135deg, #06C755, #00B900);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(6, 199, 85, 0.3);
+            transition: transform 0.1s;
+        }
+
+        .locate-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* 地圖 Popup 卡片樣式 */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .center-popup {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .center-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #6F4E37;
+            margin-bottom: 6px;
+            border-bottom: 2px solid #FAF8F5;
+            padding-bottom: 4px;
+        }
+
+        .nav-btn {
+            display: inline-block;
+            margin-top: 10px;
+            width: 100%;
+            text-align: center;
+            padding: 8px 0;
+            background-color: #4285F4;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 2px 6px rgba(66, 133, 244, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 地圖呈現區域 -->
+    <div id="map"></div>
+
+    <!-- 底部懸浮定位按鈕 -->
+    <div class="info-panel">
+        <button class="locate-btn" onclick="locateUser()">📍 尋找離我最近的教育中心</button>
+    </div>
+
+    <script>
+        // 1. 初始化地圖（預設中心點：台灣中心位置）
+        const map = L.map('map', { zoomControl: false }).setView([23.973875, 120.982025], 8);
+        
+        // 將放大縮小按鈕移至右上角，避開底部按鈕
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        // 2. 載入 OpenStreetMap (OSM) 免費圖資
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap 貢獻者'
+        }).addTo(map);
+
+        // 3. 艾多美教育中心資料庫 (請將官網地址與經緯度整理於此)
+        const atomyCenters = [
+            {
+                name: "艾多美 台北旗艦教育中心",
+                lat: 25.0421,
+                lng: 121.5322,
+                address: "台北市中山區南京東路二段",
+                phone: "02-12345678"
+            },
+            {
+                name: "艾多美 台中旗艦教育中心",
+                lat: 24.1622,
+                lng: 120.6488,
+                address: "台中市西屯區台灣大道三段",
+                phone: "04-87654321"
+            },
+            {
+                name: "艾多美 高雄旗艦教育中心",
+                lat: 22.6273,
+                lng: 120.3014,
+                address: "高雄市新興區中正三路",
+                phone: "07-11223344"
+            }
+        ];
+
+        // 4. 將教育中心地標繪製到 OSM 地圖上
+        atomyCenters.forEach(center => {
+            const googleNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(center.address)}`;
+            
+            const popupContent = `
+                <div class="center-popup">
+                    <div class="center-name">🏢 ${center.name}</div>
+                    📌 <b>地址：</b>${center.address}<br>
+                    📞 <b>電話：</b><a href="tel:${center.phone}">${center.phone}</a><br>
+                    <a href="${googleNavUrl}" target="_blank" class="nav-btn">🗺️ 打開 Google 地圖導航</a>
+                </div>
+            `;
+
+            L.marker([center.lat, center.lng])
+                .addTo(map)
+                .bindPopup(popupContent);
+        });
+
+        // 5. GPS 地理定位功能
+        let userMarker = null;
+
+        function locateUser() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    // 移至使用者座標並放大至街區視角
+                    map.setView([lat, lng], 14);
+
+                    // 若已有舊定位標籤則先移除
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
+                    }
+
+                    // 標註使用者當前位置
+                    userMarker = L.circle([lat, lng], {
+                        color: '#06C755',
+                        fillColor: '#06C755',
+                        fillOpacity: 0.35,
+                        radius: 200
+                    }).addTo(map).bindPopup("📍 您的當前位置").openPopup();
+
+                }, (error) => {
+                    alert("無法讀取您的定位，請確認手機已開啟 GPS 並允許瀏覽器取得位置權限。");
+                }, {
+                    enableHighAccuracy: true
+                });
+            } else {
+                alert("您的裝置不支援地理定位功能。");
+            }
+        }
+
+        // 6. 初始化 LINE LIFF
+        document.addEventListener("DOMContentLoaded", function () {
+            // 請填入您在 LINE Developers 申請的 LIFF ID
+            liff.init({ liffId: "YOUR_LIFF_ID_HERE" })
+                .then(() => {
+                    console.log("LIFF 初始化成功");
+                })
+                .catch((err) => {
+                    console.error("LIFF 初始化失敗：", err);
+                });
+        });
+    </script>
+</body>
+</html>
