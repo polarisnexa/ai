@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>艾多美教育中心地圖與導航</title>
+    <title>艾多美教育中心</title>
 
     <!-- OpenStreetMap & Leaflet.js -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -24,39 +24,87 @@
             background-color: #f8f9fa;
         }
 
-        /* 上半部：地圖 */
         #map {
             width: 100%;
-            height: 45vh;
+            height: 40vh;
             z-index: 1;
         }
 
-        /* 中間：操作按鈕區 */
         .control-bar {
             padding: 10px 16px;
             background: #ffffff;
             border-bottom: 1px solid #e9ecef;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             z-index: 10;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 6px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #06C755;
+        }
+
+        .search-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .quick-tags {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            color: #666;
+            padding-bottom: 2px;
+        }
+
+        .tag-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
         }
 
         .locate-btn {
             background: linear-gradient(135deg, #06C755, #00B900);
             color: white;
             border: none;
-            padding: 10px 16px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 2px 6px rgba(6, 199, 85, 0.3);
+            box-shadow: 0 2px 6px rgba(6, 199, 85, 0.2);
+            margin-top: 2px;
         }
 
-        /* 下半部：卡片清單 */
         .list-container {
             flex: 1;
             overflow-y: auto;
@@ -105,7 +153,6 @@
             border-radius: 12px;
         }
 
-        /* 前往所需時間區塊 */
         .time-estimate-box {
             display: flex;
             gap: 8px;
@@ -165,27 +212,39 @@
 </head>
 <body>
 
-    <!-- 上半部：地圖 -->
     <div id="map"></div>
 
-    <!-- 中間：定位按鈕 -->
     <div class="control-bar">
+        <div class="search-box">
+            <input type="text" id="search-input" class="search-input" placeholder="輸入地區（建議2字，如：新莊、板橋）" onkeypress="handleKeyPress(event)">
+            <button class="search-btn" onclick="searchByKeyword()">搜尋</button>
+        </div>
+
+        <div class="quick-tags">
+            <span>快捷搜尋：</span>
+            <button class="tag-btn" onclick="quickSearch('新莊')">新莊</button>
+            <button class="tag-btn" onclick="quickSearch('板橋')">板橋</button>
+            <button class="tag-btn" onclick="quickSearch('中壢')">中壢</button>
+            <button class="tag-btn" onclick="quickSearch('中和')">中和</button>
+            <button class="tag-btn" onclick="quickSearch('桃園')">桃園</button>
+        </div>
+
         <button class="locate-btn" onclick="locateUser()">📍 搜尋周圍 10 公里教育中心</button>
     </div>
 
-    <!-- 下半部：列表 -->
     <div class="list-container">
         <div class="list-title">
-            <span>附近教育中心列表</span>
-            <span id="result-count" style="font-weight: normal; font-size: 0.85rem; color: #6c757d;">請點擊按鈕定位</span>
+            <span>教育中心列表</span>
+            <span id="result-count" style="font-weight: normal; font-size: 0.85rem; color: #6c757d;">請輸入地區關鍵字</span>
         </div>
         <div id="center-list">
-            <div class="empty-tip">點擊上方「搜尋周圍 10 公里教育中心」，將自動列出距離您最近的據點與預估時間。</div>
+            <div class="empty-tip">請輸入兩字區域（例如：新莊、板橋）或點擊快捷按鈕搜尋。</div>
         </div>
     </div>
 
     <script>
-        // 1. 初始化地圖
+        const LIFF_ID = "2011043455-z9yvj9dV";
+
         const map = L.map('map', { zoomControl: false }).setView([23.973875, 120.982025], 8);
         L.control.zoom({ position: 'topright' }).addTo(map);
 
@@ -194,7 +253,6 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // 2. 教育中心完整資料庫
         const atomyCenters = [
             { name: "艾多美 桃園龜山教育中心", lat: 24.9942, lng: 121.3382, address: "桃園市龜山區萬壽路二段725號", phone: "03-3505566" },
             { name: "艾多美 三峽碩澄教育中心", lat: 24.9351, lng: 121.3698, address: "新北市三峽區大同路220號1樓", phone: "02-26728841" },
@@ -212,7 +270,6 @@
         let userMarker = null;
         let markersGroup = L.layerGroup().addTo(map);
 
-        // 3. Haversine 距離計算 (公里)
         function getDistanceKm(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -224,17 +281,13 @@
             return R * c;
         }
 
-        // 4. 計算機車與汽車預估時間區間 (依據市區速限 40-50 km/h 計算實際行駛時間)
         function calculateTravelTimeRanges(distKm) {
-            // 機車：考量市區速限 40-50 km/h 與等紅燈，平均速度設定約 30~42 km/h
             let motoMin = Math.round((distKm / 42) * 60);
             let motoMax = Math.round((distKm / 30) * 60) + 2;
 
-            // 汽車：考量市區車流與等紅燈，平均速度設定約 25~38 km/h
             let carMin = Math.round((distKm / 38) * 60);
             let carMax = Math.round((distKm / 25) * 60) + 3;
 
-            // 最短時間防呆 (至少 2-3 分鐘)
             motoMin = Math.max(motoMin, 2);
             motoMax = Math.max(motoMax, motoMin + 2);
             carMin = Math.max(carMin, 3);
@@ -246,7 +299,53 @@
             };
         }
 
-        // 5. 定位與搜尋 10 公里內據點
+        // 搜尋邏輯：自動修整並限定前 2 個字進行最佳化比對
+        function searchByKeyword() {
+            let rawQuery = document.getElementById('search-input').value.trim();
+            
+            if (!rawQuery) {
+                alert("請輸入地區名稱（例如：新莊、板橋）");
+                return;
+            }
+
+            // 先清洗常見行政區尾綴詞
+            let cleanQuery = rawQuery.replace(/(新北市|臺北市|台北市|桃園市|台中市|臺中市|高雄市|市|區|縣|教育中心|艾多美)/g, "").trim();
+            if (cleanQuery.length === 0) {
+                cleanQuery = rawQuery;
+            }
+
+            // 限制僅取前 2 個字為核心地名
+            const query = cleanQuery.substring(0, 2);
+
+            markersGroup.clearLayers();
+            if (userMarker) map.removeLayer(userMarker);
+
+            const filtered = atomyCenters.filter(c => 
+                c.name.includes(query) || c.address.includes(query)
+            );
+
+            if (filtered.length === 0) {
+                renderList([], `搜尋 "${query}"：查無資料`);
+                return;
+            }
+
+            const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+
+            renderList(filtered, `"${query}" 相關據點 (${filtered.length} 筆)`);
+        }
+
+        function quickSearch(keyword) {
+            document.getElementById('search-input').value = keyword;
+            searchByKeyword();
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                searchByKeyword();
+            }
+        }
+
         function locateUser() {
             if (!navigator.geolocation) {
                 alert("您的裝置不支援地理定位。");
@@ -277,53 +376,61 @@
                 .filter(center => center.distance <= 10)
                 .sort((a, b) => a.distance - b.distance);
 
-                renderList(nearbyCenters);
+                renderList(nearbyCenters, `找到 ${nearbyCenters.length} 間據點 (10km內)`);
 
             }, error => {
-                alert("無法獲取定位權限，請開啟 GPS 或允許瀏覽器讀取位置。");
+                alert("無法獲取定位權限，請開啟 GPS 或手動輸入地區搜尋。");
             }, { enableHighAccuracy: true });
         }
 
-        // 6. 渲染卡片
-        function renderList(centers) {
+        function renderList(centers, statusText) {
             const listEl = document.getElementById('center-list');
             const countEl = document.getElementById('result-count');
             listEl.innerHTML = '';
 
-            countEl.innerText = `找到 ${centers.length} 間據點 (10km內)`;
+            countEl.innerText = statusText || `找到 ${centers.length} 間據點`;
 
             if (centers.length === 0) {
-                listEl.innerHTML = '<div class="empty-tip">半徑 10 公里內無教育中心，請放大地圖查看較遠據點。</div>';
+                listEl.innerHTML = '<div class="empty-tip">未找到相關教育中心，請輸入 2 字區域（如：板橋）。</div>';
                 return;
             }
 
             centers.forEach(center => {
                 const googleNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(center.address)}`;
                 
+                const distText = center.distance ? `距離：${center.distance.toFixed(1)} km` : '';
+                const timeText = center.times ? `<br>🛵 機車：${center.times.moto}<br>🚗 汽車：${center.times.car}` : '';
+                
                 L.marker([center.lat, center.lng])
                     .addTo(markersGroup)
-                    .bindPopup(`<b>${center.name}</b><br>距離：${center.distance.toFixed(1)} km<br>🛵 機車：${center.times.moto}<br>🚗 汽車：${center.times.car}`);
+                    .bindPopup(`<b>${center.name}</b><br>${distText}${timeText}`);
+
+                const distBadge = center.distance ? `<span class="card-dist">約 ${center.distance.toFixed(1)} km</span>` : '';
+                const timeBox = center.times ? `
+                    <div class="time-estimate-box">
+                        <div class="time-item">🛵 機車：<b>${center.times.moto}</b></div>
+                        <div class="time-item">🚗 汽車：<b>${center.times.car}</b></div>
+                    </div>` : '';
+
+                const motoTimeVal = center.times ? center.times.moto : '依導航為準';
+                const carTimeVal = center.times ? center.times.car : '依導航為準';
 
                 const card = document.createElement('div');
                 card.className = 'center-card';
                 card.innerHTML = `
                     <div class="card-header">
                         <span class="card-name">${center.name}</span>
-                        <span class="card-dist">約 ${center.distance.toFixed(1)} km</span>
+                        ${distBadge}
                     </div>
                     
-                    <!-- 預估前往時間區塊 -->
-                    <div class="time-estimate-box">
-                        <div class="time-item">🛵 機車：<b>${center.times.moto}</b></div>
-                        <div class="time-item">🚗 汽車：<b>${center.times.car}</b></div>
-                    </div>
+                    ${timeBox}
 
                     <div class="card-info">📌 ${center.address}</div>
                     <div class="card-info">📞 ${center.phone}</div>
                     <div class="card-actions">
                         <a href="tel:${center.phone}" class="action-btn btn-call">撥打</a>
                         <a href="${googleNavUrl}" target="_blank" class="action-btn btn-nav">🗺️ 導航</a>
-                        <button class="action-btn btn-share" onclick="shareCenter('${center.name}', '${center.address}', '${center.phone}', '${center.times.moto}', '${center.times.car}')">💬 分享</button>
+                        <button class="action-btn btn-share" onclick="shareCenter('${center.name}', '${center.address}', '${center.phone}', '${motoTimeVal}', '${carTimeVal}')">💬 分享</button>
                     </div>
                 `;
 
@@ -337,16 +444,25 @@
             });
         }
 
-        // 7. LINE 分享 (優化判定邏輯)
-        function shareCenter(name, address, phone, motoTime, carTime) {
-            // 檢查是否在 LINE 環境中執行
-            if (!liff.isInClient()) {
-                alert("請於 LINE App 內開啟此頁面以使用一鍵分享功能。");
+        async function shareCenter(name, address, phone, motoTime, carTime) {
+            if (!liff.isLoggedIn()) {
+                alert("即將引導登入 LINE 帳號以啟用分享功能...");
+                liff.login();
                 return;
             }
 
-            if (liff.isApiAvailable('shareTargetPicker')) {
-                liff.shareTargetPicker([
+            if (!liff.isApiAvailable('shareTargetPicker')) {
+                alert("無法開啟分享功能，請確認 LINE Developers Console 已啟用 Share Target Picker 機能。");
+                return;
+            }
+
+            let targetUrl = `https://liff.line.me/${LIFF_ID}`;
+            if (!window.location.href.startsWith('https://')) {
+                targetUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+            }
+
+            try {
+                const res = await liff.shareTargetPicker([
                     {
                         type: "flex",
                         altText: `📍 推薦艾多美教育中心：${name}`,
@@ -366,7 +482,7 @@
                                 layout: "vertical",
                                 contents: [
                                     { type: "text", text: name, weight: "bold", size: "md", wrap: true },
-                                    { type: "text", text: `🛵 機車約 ${motoTime} | 🚗 汽車約 ${carTime}`, size: "xs", color: "#06C755", weight: "bold", margin: "xs" },
+                                    { type: "text", text: `🛵 機車：${motoTime} | 🚗 汽車：${carTime}`, size: "xs", color: "#06C755", weight: "bold", margin: "xs" },
                                     { type: "text", text: `📌 地址：${address}`, size: "xs", color: "#666666", margin: "sm", wrap: true },
                                     { type: "text", text: `📞 電話：${phone}`, size: "xs", color: "#666666", margin: "xs" }
                                 ]
@@ -379,8 +495,8 @@
                                         type: "button",
                                         action: {
                                             type: "uri",
-                                            label: "🗺️ 打開地圖查看",
-                                            uri: window.location.href
+                                            label: "🗺️ 查看地圖與導航",
+                                            uri: targetUrl
                                         },
                                         style: "primary",
                                         color: "#4285F4",
@@ -390,19 +506,17 @@
                             }
                         }
                     }
-                ]).then((res) => {
-                    if (res) console.log("分享成功");
-                }).catch((err) => {
-                    console.error("分享失敗:", err);
-                });
-            } else {
-                alert("請至 LINE Developers Console 後台開啓 Share Target Picker 功能。");
+                ]);
+
+                if (res) console.log("分享成功");
+            } catch (err) {
+                console.error("分享失敗:", err);
+                alert(`分享失敗，原因：${err.message || JSON.stringify(err)}`);
             }
         }
 
-        // 8. 初始化 LIFF
         document.addEventListener("DOMContentLoaded", function () {
-            liff.init({ liffId: "2011043455-z9yvj9dV" }).catch(err => console.error(err));
+            liff.init({ liffId: LIFF_ID }).catch(err => console.error("LIFF 初始化失敗:", err));
         });
     </script>
 </body>
