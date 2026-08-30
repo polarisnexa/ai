@@ -17,14 +17,14 @@
 </head>
 <body class="py-4">
   <div class="container" style="max-width: 480px;">
-    
+
     <!-- 表單卡片 -->
     <div class="card p-4" id="formCard">
-      
-      <!-- 📌 頂部宣傳 Banner 圖片與連結（已優化相容 LINE 內建瀏覽器） -->
+
+      <!-- 📌 頂部宣傳 Banner 圖片與連結（已更新為 GitHub Pages 直連，並加上 v=2 強制避開快取） -->
       <div class="mb-3 text-center">
-        <a href="https://cdn.jsdelivr.net/gh/polarisnexa/ai@main/atomy/AtomyNewMemberGift.jpg" target="_blank" rel="noopener noreferrer">
-          <img src="https://cdn.jsdelivr.net/gh/polarisnexa/ai@main/atomy/AtomyNewMemberGift.jpg" class="img-fluid rounded-3 shadow-sm" alt="新會員好禮宣傳海報" loading="eager" crossorigin="anonymous">
+        <a href="https://polarisnexa.github.io/ai/atomy/AtomyNewMemberGift.jpg?v=2" target="_blank" rel="noopener noreferrer">
+          <img src="https://polarisnexa.github.io/ai/atomy/AtomyNewMemberGift.jpg?v=2" class="img-fluid rounded-3 shadow-sm" alt="新會員好禮宣傳海報" loading="eager" crossorigin="anonymous">
         </a>
       </div>
 
@@ -39,7 +39,7 @@
 
       <form id="regForm">
         <input type="hidden" id="lineUserId" name="lineUserId">
-        
+
         <div class="mb-3">
           <label class="form-label fw-bold">真實姓名 <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="name" required placeholder="請輸入姓名">
@@ -70,7 +70,7 @@
       <div class="my-2">
         <div style="font-size: 50px;">🎉</div>
         <h4 class="fw-bold text-success mb-2">預約資料已成功送出！</h4>
-        
+
         <div class="status-box mb-3 text-start">
           <div class="fw-bold text-dark mb-1">📋 審核狀態：<span class="text-warning">待開通驗證</span></div>
           <p class="small text-muted mb-0">
@@ -139,13 +139,13 @@
 
       if (!refCode || refCode === "") {
         const msg = "⚠️ 提示：請聯絡您的介紹人索取註冊連結，或者透過網路搜尋「AI 自動化團隊經營系統」找到專屬團隊連結。";
-        
+
         alertBox.innerHTML = `<div class="alert alert-danger fw-bold small mb-3">${msg}</div>`;
         alertBox.classList.remove("d-none");
 
         inputs.forEach(input => input.disabled = true);
         refInput.value = "無推薦人代碼 (已被鎖定)";
-        
+
         submitBtn.disabled = true;
         submitBtn.innerText = "請透過介紹人專屬連結預約";
         submitBtn.className = "btn btn-secondary w-100 mt-2";
