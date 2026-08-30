@@ -56,7 +56,7 @@
             box-shadow: 0 2px 6px rgba(6, 199, 85, 0.3);
         }
 
-        /* 下半部：10公里內教育中心卡片清單 */
+        /* 下半部：卡片清單 */
         .list-container {
             flex: 1;
             overflow-y: auto;
@@ -81,7 +81,7 @@
             border-left: 4px solid #06C755;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
 
         .card-header {
@@ -105,6 +105,28 @@
             border-radius: 12px;
         }
 
+        /* 前往所需時間區塊 */
+        .time-estimate-box {
+            display: flex;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            color: #495057;
+        }
+
+        .time-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .time-item b {
+            color: #212529;
+        }
+
         .card-info {
             font-size: 0.85rem;
             color: #666;
@@ -114,7 +136,7 @@
         .card-actions {
             display: flex;
             gap: 6px;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .action-btn {
@@ -158,7 +180,7 @@
             <span id="result-count" style="font-weight: normal; font-size: 0.85rem; color: #6c757d;">請點擊按鈕定位</span>
         </div>
         <div id="center-list">
-            <div class="empty-tip">點擊上方「搜尋周圍 10 公里教育中心」，將自動列出距離您最近的據點與地址。</div>
+            <div class="empty-tip">點擊上方「搜尋周圍 10 公里教育中心」，將自動列出距離您最近的據點與預估時間。</div>
         </div>
     </div>
 
@@ -191,7 +213,7 @@
         let userMarker = null;
         let markersGroup = L.layerGroup().addTo(map);
 
-        // 3. 距離計算 (Haversine)
+        // 3. Haversine 距離計算 (公里)
         function getDistanceKm(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -203,7 +225,29 @@
             return R * c;
         }
 
-        // 4. 定位功能
+        // 4. 計算機車與汽車預估時間區間
+        function calculateTravelTimeRanges(distKm) {
+            // 機車：市區平均速度 25~35 km/h + 等紅燈彈性
+            let motoMin = Math.round((distKm / 35) * 60);
+            let motoMax = Math.round((distKm / 22) * 60) + 3;
+
+            // 汽車：市區/主幹道平均速度 20~30 km/h + 車流彈性
+            let carMin = Math.round((distKm / 30) * 60);
+            let carMax = Math.round((distKm / 18) * 60) + 5;
+
+            // 最短時間防呆 (至少 2-3 分鐘)
+            motoMin = Math.max(motoMin, 2);
+            motoMax = Math.max(motoMax, motoMin + 3);
+            carMin = Math.max(carMin, 3);
+            carMax = Math.max(carMax, carMin + 4);
+
+            return {
+                moto: `${motoMin}~${motoMax} 分鐘`,
+                car: `${carMin}~${carMax} 分鐘`
+            };
+        }
+
+        // 5. 定位與搜尋 10 公里內據點
         function locateUser() {
             if (!navigator.geolocation) {
                 alert("您的裝置不支援地理定位。");
@@ -228,7 +272,8 @@
 
                 const nearbyCenters = atomyCenters.map(center => {
                     const dist = getDistanceKm(userLat, userLng, center.lat, center.lng);
-                    return { ...center, distance: dist };
+                    const times = calculateTravelTimeRanges(dist);
+                    return { ...center, distance: dist, times: times };
                 })
                 .filter(center => center.distance <= 10)
                 .sort((a, b) => a.distance - b.distance);
@@ -240,7 +285,7 @@
             }, { enableHighAccuracy: true });
         }
 
-        // 5. 渲染卡片與分享功能
+        // 6. 渲染卡片 (新增時間區段標示)
         function renderList(centers) {
             const listEl = document.getElementById('center-list');
             const countEl = document.getElementById('result-count');
@@ -258,7 +303,7 @@
                 
                 L.marker([center.lat, center.lng])
                     .addTo(markersGroup)
-                    .bindPopup(`<b>${center.name}</b><br>距離：${center.distance.toFixed(1)} km`);
+                    .bindPopup(`<b>${center.name}</b><br>距離：${center.distance.toFixed(1)} km<br>🛵 機車：${center.times.moto}<br>🚗 汽車：${center.times.car}`);
 
                 const card = document.createElement('div');
                 card.className = 'center-card';
@@ -267,12 +312,19 @@
                         <span class="card-name">${center.name}</span>
                         <span class="card-dist">約 ${center.distance.toFixed(1)} km</span>
                     </div>
+                    
+                    <!-- 預估前往時間區塊 -->
+                    <div class="time-estimate-box">
+                        <div class="time-item">🛵 機車：<b>${center.times.moto}</b></div>
+                        <div class="time-item">🚗 汽車：<b>${center.times.car}</b></div>
+                    </div>
+
                     <div class="card-info">📌 ${center.address}</div>
                     <div class="card-info">📞 ${center.phone}</div>
                     <div class="card-actions">
                         <a href="tel:${center.phone}" class="action-btn btn-call">撥打</a>
                         <a href="${googleNavUrl}" target="_blank" class="action-btn btn-nav">🗺️ 導航</a>
-                        <button class="action-btn btn-share" onclick="shareCenter('${center.name}', '${center.address}', '${center.phone}')">💬 分享</button>
+                        <button class="action-btn btn-share" onclick="shareCenter('${center.name}', '${center.address}', '${center.phone}', '${center.times.moto}', '${center.times.car}')">💬 分享</button>
                     </div>
                 `;
 
@@ -286,8 +338,8 @@
             });
         }
 
-        // 6. 一鍵分享特定教育中心到 LINE 聊天室
-        function shareCenter(name, address, phone) {
+        // 7. LINE 分享 (同時帶入時間資訊)
+        function shareCenter(name, address, phone, motoTime, carTime) {
             if (!liff.isLoggedIn() && !liff.isInClient()) {
                 alert("請於 LINE App 內開啟此頁面以使用一鍵分享功能。");
                 return;
@@ -314,7 +366,8 @@
                                 layout: "vertical",
                                 contents: [
                                     { type: "text", text: name, weight: "bold", size: "md", wrap: true },
-                                    { type: "text", text: `📌 地址：${address}`, size: "xs", color: "#666666", margin: "md", wrap: true },
+                                    { type: "text", text: `🛵 機車約 ${motoTime} | 🚗 汽車約 ${carTime}`, size: "xs", color: "#06C755", weight: "bold", margin: "xs" },
+                                    { type: "text", text: `📌 地址：${address}`, size: "xs", color: "#666666", margin: "sm", wrap: true },
                                     { type: "text", text: `📞 電話：${phone}`, size: "xs", color: "#666666", margin: "xs" }
                                 ]
                             },
@@ -347,7 +400,7 @@
             }
         }
 
-        // 7. 初始化 LIFF
+        // 8. 初始化 LIFF
         document.addEventListener("DOMContentLoaded", function () {
             liff.init({ liffId: "YOUR_LIFF_ID_HERE" }).catch(err => console.error(err));
         });
