@@ -225,21 +225,21 @@
             return R * c;
         }
 
-        // 4. 計算機車與汽車預估時間區間
+        // 4. 計算機車與汽車預估時間區間 (依據市區速限 40-50 km/h 計算實際行駛時間)
         function calculateTravelTimeRanges(distKm) {
-            // 機車：市區平均速度 25~35 km/h + 等紅燈彈性
-            let motoMin = Math.round((distKm / 35) * 60);
-            let motoMax = Math.round((distKm / 22) * 60) + 3;
+            // 機車：考量市區速限 40-50 km/h 與等紅燈，平均速度設定約 30~42 km/h
+            let motoMin = Math.round((distKm / 42) * 60);
+            let motoMax = Math.round((distKm / 30) * 60) + 2;
 
-            // 汽車：市區/主幹道平均速度 20~30 km/h + 車流彈性
-            let carMin = Math.round((distKm / 30) * 60);
-            let carMax = Math.round((distKm / 18) * 60) + 5;
+            // 汽車：考量市區車流與等紅燈，平均速度設定約 25~38 km/h
+            let carMin = Math.round((distKm / 38) * 60);
+            let carMax = Math.round((distKm / 25) * 60) + 3;
 
             // 最短時間防呆 (至少 2-3 分鐘)
             motoMin = Math.max(motoMin, 2);
-            motoMax = Math.max(motoMax, motoMin + 3);
+            motoMax = Math.max(motoMax, motoMin + 2);
             carMin = Math.max(carMin, 3);
-            carMax = Math.max(carMax, carMin + 4);
+            carMax = Math.max(carMax, carMin + 3);
 
             return {
                 moto: `${motoMin}~${motoMax} 分鐘`,
@@ -285,7 +285,7 @@
             }, { enableHighAccuracy: true });
         }
 
-        // 6. 渲染卡片 (新增時間區段標示)
+        // 6. 渲染卡片
         function renderList(centers) {
             const listEl = document.getElementById('center-list');
             const countEl = document.getElementById('result-count');
@@ -338,9 +338,10 @@
             });
         }
 
-        // 7. LINE 分享 (同時帶入時間資訊)
+        // 7. LINE 分享 (優化判定邏輯)
         function shareCenter(name, address, phone, motoTime, carTime) {
-            if (!liff.isLoggedIn() && !liff.isInClient()) {
+            // 檢查是否在 LINE 環境中執行
+            if (!liff.isInClient()) {
                 alert("請於 LINE App 內開啟此頁面以使用一鍵分享功能。");
                 return;
             }
@@ -396,7 +397,7 @@
                     console.error("分享失敗:", err);
                 });
             } else {
-                alert("您的 LINE 版本不支援分享功能，請更新 LINE App。");
+                alert("請至 LINE Developers Console 後台開啓 Share Target Picker 功能。");
             }
         }
 
