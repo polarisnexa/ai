@@ -314,7 +314,7 @@
 
     <div class="container">
         <div class="countdown-banner">
-            <div class="countdown-title">⏰ 活動倒數計時 🚨 優惠即將截止</div>
+            <div class="countdown-title">⏰ 限時活動倒數中</div>
             <div class="timer-display" id="timer">
                 <span class="timer-unit" id="d">00</span>天
                 <span class="timer-unit" id="h">00</span>時
@@ -447,6 +447,7 @@
 
             // 2. 毫秒級倒數計時腳本 (目標日期：2026/12/31 23:59:59)
             const targetDate = new Date("2026-12-31T23:59:59").getTime();
+            const titleElement = document.querySelector(".countdown-title");
 
             function updateTimer() {
                 const now = new Date().getTime();
@@ -454,6 +455,7 @@
 
                 if (diff <= 0) {
                     document.getElementById("timer").innerHTML = "⚠️ 本期優惠活動已結束";
+                    if (titleElement) titleElement.innerText = "⏰ 活動已結束";
                     return;
                 }
 
@@ -462,6 +464,15 @@
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((diff % (1000 * 60)) / 1000);
                 const milliseconds = Math.floor((diff % 1000) / 10);
+
+                // 💡 動態標題：剩餘 30 天以內 (12/1 起) 才顯示「🚨 優惠即將截止」
+                if (titleElement) {
+                    if (days <= 30) {
+                        titleElement.innerHTML = "⏰ 活動倒數計時 🚨 優惠即將截止";
+                    } else {
+                        titleElement.innerHTML = "⏰ 限時活動倒數中";
+                    }
+                }
 
                 document.getElementById("d").innerText = String(days).padStart(2, '0');
                 document.getElementById("h").innerText = String(hours).padStart(2, '0');
