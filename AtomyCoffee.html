@@ -313,7 +313,6 @@
 <body>
 
     <div class="container">
-        <!-- 💡 毫秒級高感官時光飛逝計時橫條 -->
         <div class="countdown-banner">
             <div class="countdown-title">⏰ 活動倒數計時 🚨 優惠即將截止</div>
             <div class="timer-display" id="timer">
@@ -325,7 +324,6 @@
             </div>
         </div>
 
-        <!-- 頂部文案與主圖 -->
         <div class="header">
             <h1>☕️ 每天喝咖啡的人，這次不只省下200元，還能多一個「AI經營助手」！🤖🎁</h1>
             <p>如果你本來就有喝咖啡的習慣，那這次的艾多美新會員活動，真的可以了解一下。</p>
@@ -333,7 +331,6 @@
 
         <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyCoffee.jpg" alt="艾多美阿拉比卡黑咖啡" class="main-img">
 
-        <!-- 卡片 1：咖啡特色與價格優惠 -->
         <div class="card">
             <h2 class="card-title">☕️ 艾多美 ARABICA BLACK 阿拉比卡黑咖啡</h2>
             <ul class="feature-list">
@@ -352,7 +349,6 @@
             </div>
         </div>
 
-        <!-- 卡片 2：新會員三重禮 -->
         <div class="card">
             <h2 class="card-title">🎁 新會員好禮三重送</h2>
             <p>而且這還只是第一重優惠！</p>
@@ -381,10 +377,8 @@
             </div>
         </div>
 
-        <!-- 使用方式圖片展示 -->
         <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyCoffeeDirections1.gif" alt="咖啡沖泡方式" class="main-img">
 
-        <!-- 卡片 3：AI 經營輔助系統 -->
         <div class="card ai-card">
             <h2 class="card-title">🤖 這次，我更想跟你分享另一個重點！</h2>
             <p style="margin-bottom: 12px; color: #e2e8f0;">如果你加入後不只是想「買東西省一點」，而是思考過：</p>
@@ -410,14 +404,13 @@
 
         <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/atomy/AtomyCoffeeDirections2.jpg" alt="產品細節與優勢" class="main-img">
 
-        <!-- 卡片 4：活動說明與結語 -->
         <div class="card">
             <h2 class="card-title">⏰ 活動時間與資格說明</h2>
             <p>先從一杯咖啡開始，認識一個新的消費選擇，再慢慢了解一套更有效率的 AI 經營方式。</p>
 
             <div style="margin: 16px 0; background: #FFF; border: 1px solid #FFE3E3; border-radius: 8px; padding: 12px; color: var(--accent-color); font-weight: bold;">
-                📅 活動期間：2026/5/14 ～ 2026/8/31<br>
-                ⚠️ 限 2026/8/31 前完成認證的新註冊會員
+                📅 活動期間：2026/5/14 ～ 2026/12/31 23:59止<br>
+                ⚠️ 限 2026/12/31 前完成認證的新註冊會員
             </div>
 
             <p style="font-size: 0.95rem; color: var(--text-dark);">
@@ -433,7 +426,6 @@
         </div>
     </div>
 
-    <!-- 底部固定導向按鈕 -->
     <div class="sticky-footer">
         <a id="liff-link" href="#" class="cta-button">
             🤖 立即進入｜AI經營輔助系統
@@ -453,8 +445,8 @@
                 liffButton.href = finalUrl;
             }
 
-            // 2. 毫秒級倒數計時腳本 (目標日期：2026/08/31 23:59:59)
-            const targetDate = new Date("2026-08-31T23:59:59").getTime();
+            // 2. 毫秒級倒數計時腳本 (目標日期：2026/12/31 23:59:59)
+            const targetDate = new Date("2026-12-31T23:59:59").getTime();
 
             function updateTimer() {
                 const now = new Date().getTime();
