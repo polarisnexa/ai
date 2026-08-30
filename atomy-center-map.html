@@ -227,29 +227,21 @@
 </head>
 <body>
 
-    <div id="map"></div>
-
     <div class="control-bar">
-        <!-- 搜尋列 -->
-        <div class="search-box">
-            <input type="text" id="search-input" class="search-input" placeholder="輸入地區（如：新莊、板橋、台中）" onkeypress="handleKeyPress(event)">
-            <button class="search-btn" onclick="searchByKeyword()">搜尋</button>
-        </div>
-
-        <!-- 所有地區標籤（自動生成） -->
-        <div class="quick-tags-container">
-            <span class="quick-tags-label">📍 地區：</span>
-            <div id="tags-wrapper" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;"></div>
+        <!-- 所有地區標籤（自動生成、自適應自動換行） -->
+        <div class="quick-tags-container" style="display: flex; flex-direction: column; gap: 6px;">
+            <span class="quick-tags-label" style="font-weight: bold; font-size: 0.9rem;">📍 地區：</span>
+            <div id="tags-wrapper" style="display: flex; flex-wrap: wrap; gap: 8px 6px;"></div>
         </div>
 
         <!-- 10km GPS 定位按鈕 -->
-        <button class="locate-btn" onclick="locateUser()">📍 搜尋周圍 10 公里教育中心</button>
+        <button class="locate-btn" onclick="locateUser()" style="margin-top: 10px; width: 100%;">📍 搜尋周圍 10 公里教育中心</button>
     </div>
 
-    <div class="list-container">
+    <div class="list-container" style="margin-top: 15px;">
         <div class="list-title">
             <span>教育中心列表</span>
-            <span id="result-count" style="font-weight: normal; font-size: 0.85rem; color: #6c757d;">請點選地區或輸入搜尋</span>
+            <span id="result-count" style="font-weight: normal; font-size: 0.85rem; color: #6c757d;">請點選地區標籤</span>
         </div>
         <div id="center-list">
             <div class="empty-tip">請點擊上方地區標籤，或點擊「搜尋周圍 10 公里教育中心」。</div>
@@ -258,14 +250,6 @@
 
     <script>
         const LIFF_ID = "2011043455-z9yvj9dV";
-
-        const map = L.map('map', { zoomControl: false }).setView([23.973875, 120.982025], 8);
-        L.control.zoom({ position: 'topright' }).addTo(map);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
 
         // 教育中心完整資料庫
         const atomyCenters = [
@@ -368,9 +352,6 @@
             { code: "W114", name: "艾多美 台東忠信教育中心", address: "台東縣台東市成功里信義路77號", phone: "08-9320522", openDate: "2026-02-26", hours: "週一至週四11:00~19:00" }
         ];
 
-        let userMarker = null;
-        let markersGroup = L.layerGroup().addTo(map);
-
         // 自動從資料庫提取不重複的「縣市標籤」
         function initQuickTags() {
             const wrapper = document.getElementById('tags-wrapper');
@@ -378,7 +359,6 @@
 
             atomyCenters.forEach(c => {
                 if (c.address) {
-                    // 自動提取前3個字（縣市層級）
                     let city = c.address.substring(0, 3).replace("臺", "台");
                     if (city.endsWith("市") || city.endsWith("縣")) {
                         districtSet.add(city);
@@ -390,7 +370,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'tag-btn';
                 btn.innerText = district;
-                btn.style.cssText = "padding: 4px 10px; border: 1px solid #06C755; background: #fff; border-radius: 12px; font-size: 0.85rem; cursor: pointer; white-space: nowrap;";
+                btn.style.cssText = "padding: 6px 12px; border: 1px solid #06C755; background: #fff; color: #06C755; border-radius: 16px; font-size: 0.85rem; font-weight: bold; cursor: pointer; white-space: nowrap;";
                 btn.onclick = () => quickSearch(district);
                 wrapper.appendChild(btn);
             });
@@ -425,22 +405,11 @@
             };
         }
 
-        function searchByKeyword() {
-            let rawQuery = document.getElementById('search-input').value.trim();
-            
-            if (!rawQuery) {
-                alert("請輸入地區名稱（例如：新莊、板橋、台北）");
-                return;
-            }
+        function quickSearch(keyword) {
+            let cleanQuery = keyword.replace(/(新北市|臺北市|台北市|桃園市|台中市|臺中市|高雄市|市|區|縣|教育中心|艾多美)/g, "").trim();
+            if (cleanQuery.length === 0) cleanQuery = keyword;
 
-            let cleanQuery = rawQuery.replace(/(新北市|臺北市|台北市|桃園市|台中市|臺中市|高雄市|市|區|縣|教育中心|艾多美)/g, "").trim();
-            if (cleanQuery.length === 0) cleanQuery = rawQuery;
-
-            // 支援 2-3 個字的關鍵字對比
             const query = cleanQuery.replace("臺", "台");
-
-            markersGroup.clearLayers();
-            if (userMarker) map.removeLayer(userMarker);
 
             const filtered = atomyCenters.filter(c => 
                 c.name.replace("臺", "台").includes(query) || 
@@ -448,29 +417,11 @@
             );
 
             if (filtered.length === 0) {
-                renderList([], `搜尋 "${rawQuery}"：查無資料`);
+                renderList([], `點選 "${keyword}"：查無資料`);
                 return;
             }
 
-            // 支援沒有 lat/lng 容錯
-            const validCoords = filtered.filter(c => c.lat && c.lng);
-            if (validCoords.length > 0) {
-                const bounds = L.latLngBounds(validCoords.map(c => [c.lat, c.lng]));
-                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
-            }
-
-            renderList(filtered, `"${rawQuery}" 相關據點 (${filtered.length} 筆)`);
-        }
-
-        function quickSearch(keyword) {
-            document.getElementById('search-input').value = keyword;
-            searchByKeyword();
-        }
-
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                searchByKeyword();
-            }
+            renderList(filtered, `"${keyword}" 相關據點 (${filtered.length} 筆)`);
         }
 
         function locateUser() {
@@ -482,18 +433,6 @@
             navigator.geolocation.getCurrentPosition(position => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
-
-                map.setView([userLat, userLng], 12);
-
-                markersGroup.clearLayers();
-                if (userMarker) map.removeLayer(userMarker);
-
-                userMarker = L.circle([userLat, userLng], {
-                    color: '#06C755',
-                    fillColor: '#06C755',
-                    fillOpacity: 0.25,
-                    radius: 500
-                }).addTo(map).bindPopup("📍 您的位置").openPopup();
 
                 const nearbyCenters = atomyCenters
                 .filter(center => center.lat && center.lng)
@@ -527,15 +466,6 @@
             centers.forEach(center => {
                 const googleNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(center.address)}`;
                 
-                const distText = center.distance ? `距離：${center.distance.toFixed(1)} km` : '';
-                const timeText = center.times ? `<br>🛵 機車：${center.times.moto}<br>🚗 汽車：${center.times.car}` : '';
-                
-                if (center.lat && center.lng) {
-                    L.marker([center.lat, center.lng])
-                        .addTo(markersGroup)
-                        .bindPopup(`<b>${center.name}</b><br>${distText}${timeText}`);
-                }
-
                 const distBadge = center.distance ? `<span class="card-dist">約 ${center.distance.toFixed(1)} km</span>` : '';
                 const timeBox = center.times ? `
                     <div class="time-estimate-box">
@@ -564,12 +494,6 @@
                         <button class="action-btn btn-share" onclick="shareCenter('${center.name}', '${center.address}', '${center.phone}', '${motoTimeVal}', '${carTimeVal}')">💬 分享</button>
                     </div>
                 `;
-
-                card.onclick = (e) => {
-                    if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON' && center.lat && center.lng) {
-                        map.setView([center.lat, center.lng], 15);
-                    }
-                };
 
                 listEl.appendChild(card);
             });
@@ -647,7 +571,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            initQuickTags(); // 初始化自動生成地區標籤
+            initQuickTags();
             liff.init({ liffId: LIFF_ID }).catch(err => console.error("LIFF 初始化失敗:", err));
         });
     </script>
