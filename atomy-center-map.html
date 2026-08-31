@@ -1,17 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>艾多美教育中心查詢</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f7f9fa;
+            color: #333;
+            margin: 0;
+            padding: 12px;
+            -webkit-text-size-adjust: 100%; /* 防止手機自動調整字體大小 */
+        }
+        .control-bar {
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+        .quick-tags-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .quick-tags-label {
+            font-weight: bold;
+            font-size: 15px;
+            color: #2c3e50;
+        }
+        #tags-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .tag-btn {
+            padding: 6px 12px;
+            border: 1px solid #06C755;
+            background: #fff;
+            color: #06C755;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tag-btn:active {
+            background: #06C755;
+            color: #fff;
+        }
+        .list-container {
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .list-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+        .center-card {
+            background: #ffffff;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+        .card-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #06C755;
+        }
+        .card-info {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 8px 0;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-call {
+            background-color: #e8f8f0;
+            color: #06C755;
+            border: 1px solid #06C755;
+        }
+        .btn-nav {
+            background-color: #eaf2fd;
+            color: #1a73e8;
+            border: 1px solid #1a73e8;
+        }
+        .btn-copy {
+            background-color: #f1f3f4;
+            color: #3c4043;
+            border: 1px solid #dadce0;
+        }
+        .empty-tip {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
 <body>
 
     <div class="control-bar">
-        <!-- 所有地區標籤（自動生成、自適應自動換行） -->
-        <div class="quick-tags-container" style="display: flex; flex-direction: column; gap: 6px;">
-            <span class="quick-tags-label" style="font-weight: bold; font-size: 0.9rem;">📍 地區：</span>
-            <div id="tags-wrapper" style="display: flex; flex-wrap: wrap; gap: 8px 6px;"></div>
+        <div class="quick-tags-container">
+            <span class="quick-tags-label">📍 地區：</span>
+            <div id="tags-wrapper"></div>
         </div>
     </div>
 
-    <div class="list-container" style="margin-top: 15px;">
+    <div class="list-container">
         <div class="list-title">
             <span>教育中心列表</span>
-            <span id="result-count" style="font-weight: normal; font-size: 0.85rem; color: #6c757d;">請點選地區標籤</span>
+            <span id="result-count" style="font-weight: normal; font-size: 13px; color: #6c757d;">請點選地區標籤</span>
         </div>
         <div id="center-list">
             <div class="empty-tip">請點擊上方地區標籤以檢視教育中心。</div>
@@ -21,7 +153,6 @@
     <script>
         const LIFF_ID = "2011043455-z9yvj9dV";
 
-        // 教育中心完整資料庫
         const atomyCenters = [
             { code: "W003", name: "艾多美 台北中路教育中心", address: "台北市中山區民權西路19號5樓", phone: "02-25850211", openDate: "2014-01-08", hours: "週一至週五10:30~17:30(週二至19:00)、週六13:00~16:00；研討會正常開放" },
             { code: "W004", name: "艾多美 台北站前教育中心", address: "臺北市中正區忠孝西路一段50號24樓之1", phone: "02-23317882", openDate: "2014-01-08", hours: "週二至週六10:00~19:00；週日、研討會、成功學院、國定假日中心不開放" },
@@ -122,7 +253,6 @@
             { code: "W114", name: "艾多美 台東忠信教育中心", address: "台東縣台東市成功里信義路77號", phone: "08-9320522", openDate: "2026-02-26", hours: "週一至週四11:00~19:00" }
         ];
 
-        // 自動從資料庫提取不重複的「縣市標籤」
         function initQuickTags() {
             const wrapper = document.getElementById('tags-wrapper');
             const districtSet = new Set();
@@ -140,7 +270,6 @@
                 const btn = document.createElement('button');
                 btn.className = 'tag-btn';
                 btn.innerText = district;
-                btn.style.cssText = "padding: 6px 12px; border: 1px solid #06C755; background: #fff; color: #06C755; border-radius: 16px; font-size: 0.85rem; font-weight: bold; cursor: pointer; white-space: nowrap;";
                 btn.onclick = () => quickSearch(district);
                 wrapper.appendChild(btn);
             });
@@ -179,8 +308,6 @@
 
             centers.forEach(center => {
                 const googleNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(center.address)}`;
-                
-                // 處理複製名稱：將「艾多美 某某某教育中心」轉為僅保留「某某某」
                 let copyTargetName = center.name.replace(/^艾多美\s*/, "").replace(/教育中心$/, "").trim();
 
                 const card = document.createElement('div');
@@ -189,7 +316,6 @@
                     <div class="card-header">
                         <span class="card-name">${center.name}</span>
                     </div>
-
                     <div class="card-info">📌 ${center.address}</div>
                     <div class="card-info">📞 ${center.phone}</div>
                     <div class="card-actions">
@@ -203,7 +329,6 @@
             });
         }
 
-        // 一鍵複製功能
         function copyName(targetName) {
             navigator.clipboard.writeText(targetName).then(() => {
                 alert(`已成功複製：${targetName}`);
@@ -219,3 +344,4 @@
         });
     </script>
 </body>
+</html>
