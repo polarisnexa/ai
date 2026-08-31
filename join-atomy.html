@@ -3,35 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>艾多美註冊引導與教育中心查詢</title>
+    <title>2026 AI 智慧新零售 | 艾多美團隊招募與註冊引導</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
+        :root {
+            --primary: #06C755;
+            --primary-dark: #05a044;
+            --bg-color: #f4f6f8;
+            --text-main: #2c3e50;
+            --text-sub: #555555;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f7f9fa;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 12px;
-            -webkit-text-size-adjust: 100%; /* 防止手機自動調整字體大小 */
+            padding: 10px;
+            -webkit-text-size-adjust: 100%;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
         }
         .section-box {
             background: #ffffff;
-            padding: 14px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 12px;
+            padding: 16px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 14px;
+        }
+        /* 標題與封面風格 */
+        .hero-banner {
+            background: linear-gradient(135deg, #06C755 0%, #038438 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 24px 16px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 15px rgba(6,199,85,0.2);
+        }
+        .hero-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .hero-subtitle {
+            font-size: 14px;
+            opacity: 0.95;
+            line-height: 1.5;
         }
         .section-title {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
+            color: var(--text-main);
+            margin-bottom: 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 8px;
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 8px;
         }
+        /* 亮點條列樣式 */
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .highlight-item {
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+            padding: 10px 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .highlight-item strong {
+            color: #1e293b;
+            display: block;
+            margin-bottom: 2px;
+        }
+        /* 小幫手卡片 */
+        .helper-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 16px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            box-sizing: border-box;
+        }
+        .btn-primary-custom {
+            background-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(6,199,85,0.3);
+            margin-top: 12px;
+        }
+        .btn-primary-custom:active {
+            background-color: var(--primary-dark);
+        }
+        .btn-copy {
+            background-color: #f1f3f4;
+            color: #3c4043;
+            border: 1px solid #dadce0;
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            width: auto;
+        }
+        /* 教育中心卡片 */
         .center-card {
             background: #ffffff;
             border: 1px solid #e1e8ed;
@@ -43,12 +135,12 @@
         .card-name {
             font-weight: bold;
             font-size: 16px;
-            color: #06C755;
+            color: var(--primary);
             margin-bottom: 4px;
         }
         .card-info {
             font-size: 14px;
-            color: #555;
+            color: var(--text-sub);
             margin-bottom: 4px;
         }
         .card-actions {
@@ -56,7 +148,7 @@
             gap: 8px;
             margin-top: 10px;
         }
-        .action-btn {
+        .card-actions a, .card-actions button {
             flex: 1;
             padding: 8px 0;
             text-align: center;
@@ -67,43 +159,20 @@
             cursor: pointer;
             border: none;
         }
-        .btn-call {
-            background-color: #e8f8f0;
-            color: #06C755;
-            border: 1px solid #06C755;
-        }
-        .btn-nav {
-            background-color: #eaf2fd;
-            color: #1a73e8;
-            border: 1px solid #1a73e8;
-        }
-        .btn-copy {
-            background-color: #f1f3f4;
-            color: #3c4043;
-            border: 1px solid #dadce0;
-        }
-        .helper-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
+        .btn-call { background-color: #e8f8f0; color: #06C755; border: 1px solid #06C755; }
+        .btn-nav { background-color: #eaf2fd; color: #1a73e8; border: 1px solid #1a73e8; }
         .tag-btn {
-            padding: 6px 12px;
-            border: 1px solid #06C755;
+            padding: 6px 14px;
+            border: 1px solid var(--primary);
             background: #fff;
-            color: #06C755;
-            border-radius: 16px;
+            color: var(--primary);
+            border-radius: 20px;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .tag-btn:active {
-            background: #06C755;
-            color: #fff;
-        }
+        .tag-btn:active { background: var(--primary); color: #fff; }
         #tags-wrapper {
             display: flex;
             flex-wrap: wrap;
@@ -119,54 +188,107 @@
 </head>
 <body>
 
-    <!-- 區塊一：註冊引導與填寫小幫手 -->
-    <div class="section-box" style="border-top: 4px solid #06C755;">
-        <div class="section-title">
-            <span>🚀 艾多美免費註冊小幫手</span>
+<div class="container">
+
+    <!-- 區塊 0：吸睛封面宣傳 -->
+    <div class="hero-banner">
+        <div class="hero-title">🚀 告別傳統直銷困境<br>迎向 2026 AI 智慧新零售團隊</div>
+        <div class="hero-subtitle">不用求人說服、不怕大象腿、拒絕強迫消費。<br>讓 AI 幫你處理 80% 繁雜事，輕鬆打造被動收入！</div>
+    </div>
+
+    <!-- 區塊 1：AI 團隊 5 大核心優勢 -->
+    <div class="section-box">
+        <div class="section-title">✨ AI 智慧系統與團隊賦能</div>
+        <div class="highlight-grid">
+            <div class="highlight-item">
+                <strong>🤖 1. AI 自動補弱邊（解決大象腿）</strong>
+                打破傳統直銷單邊過大領不到錢的痛點，智慧系統協助平衡佈局，獎金經常領。
+            </div>
+            <div class="highlight-item">
+                <strong>💡 2. 不靠說服，吸引主動加入</strong>
+                利用高質感智能工具與自動化引導頁面，讓新人看見專業，主動開口想加入。
+            </div>
+            <div class="highlight-item">
+                <strong>🛒 3. 不強迫消費（摩天樓福利購機制）</strong>
+                擺脫囤貨壓力，透過智慧福利購機制讓大家在日常消費中輕鬆共好。
+            </div>
+            <div class="highlight-item">
+                <strong>⚡ 4. 自身不用很厲害，新手變高手</strong>
+                AI 幫忙處理 80% 重複性工作（引導、查詢、防呆），複製零門檻。
+            </div>
+            <div class="highlight-item">
+                <strong>🌟 5. 團隊許願牆機制</strong>
+                獨創願望互動，讓夥伴許下物質與生活願望，團隊與 AI 帶大家一起實現。
+            </div>
         </div>
-        
-        <div style="font-size: 14px; color: #555; margin-bottom: 10px;">
-            請依照下方步驟，點擊按鈕前往官網註冊。註冊時請對照複製以下資訊：
+    </div>
+
+    <!-- 區塊 2：2026 艾多美官方最新紅利 -->
+    <div class="section-box">
+        <div class="section-title">💎 2026 艾多美官方最新紅利</div>
+        <div class="highlight-grid">
+            <div class="highlight-item">
+                <strong>🌱 6. 全面升級線上電子作業</strong>
+                順應時代潮流全面廢除紙本回歸環保，註冊與行政全面數位化。
+            </div>
+            <div class="highlight-item">
+                <strong>🎁 7 & 8. 專屬新人好禮與生日專屬券</strong>
+                官方祭出實質入會禮與生日優惠券，第一時間感受品牌誠意。
+            </div>
+            <div class="highlight-item">
+                <strong>💰 9. 自身 PV 自動納入小邊</strong>
+                優化個人積分制度，積分自動化對應變現金，獎金更具優勢。
+            </div>
+            <div class="highlight-item">
+                <strong>📦 10. 超商取貨便民服務（滿千免運）</strong>
+                大幅降低網購門檻，新增超商取貨與超低免運額度，推廣零負擔。
+            </div>
+        </div>
+    </div>
+
+    <!-- 區塊 3：防呆註冊工具箱 -->
+    <div class="section-box" style="border-top: 4px solid var(--primary);">
+        <div class="section-title">🛠️ 新人註冊填寫小幫手</div>
+        <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 12px;">
+            請依照下方步驟，點擊按鈕前往官網註冊。填寫時請直接點擊「複製」按鈕對照使用：
         </div>
 
-        <!-- 1. 安置人資訊 -->
+        <!-- 安置人資訊 -->
         <div class="helper-card">
-            <div style="font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 4px;">1️⃣ 安置人編號（必填）</div>
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">1️⃣ 安置人資訊（必填）</div>
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
                 <span>編號：<strong>12345678</strong> (王小明)</span>
-                <button class="action-btn btn-copy" onclick="copyText('12345678')" style="flex: 0 0 70px; padding: 4px;">複製</button>
+                <button class="action-btn btn-copy" onclick="copyText('12345678')">複製編號</button>
             </div>
         </div>
 
-        <!-- 2. 團隊預設密碼 -->
+        <!-- 團隊預設密碼 -->
         <div class="helper-card">
-            <div style="font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 4px;">2️⃣ 密碼設定（團隊統一）</div>
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">2️⃣ 密碼設定（團隊統一）</div>
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
                 <span>密碼：<strong style="color: #e11d48;">Aa123456$</strong></span>
-                <button class="action-btn btn-copy" onclick="copyText('Aa123456$')" style="flex: 0 0 70px; padding: 4px;">複製</button>
+                <button class="action-btn btn-copy" onclick="copyText('Aa123456$')">複製密碼</button>
             </div>
         </div>
 
-        <!-- 3. 證件與存摺準備提醒 -->
-        <div class="helper-card" style="font-size: 13px; color: #555;">
+        <!-- 證件與存摺提示 -->
+        <div class="helper-card" style="font-size: 13px; color: var(--text-sub);">
             <div style="font-weight: bold; margin-bottom: 4px; color: #333;">3️⃣ 必備檔案上傳提醒：</div>
-            <p style="margin: 2px 0;">• <b>身分證</b>：正反面拍照需清晰、無反光、四邊完整。</p>
-            <p style="margin: 2px 0;">• <b>銀行存摺</b>：需拍「帳號內頁」（有戶名與帳號），非封面。</p>
+            <p style="margin: 3px 0;">• <b>身分證</b>：正反面拍照需清晰、無反光、四邊完整。</p>
+            <p style="margin: 3px 0;">• <b>銀行存摺</b>：需拍「帳號內頁」（有戶名與帳號），非封面。</p>
         </div>
 
-        <!-- 防呆導航按鈕：開新視窗不迷路 -->
-        <a href="https://www.atomy.com.tw/" target="_blank" rel="noopener noreferrer" class="action-btn btn-nav" style="display: block; text-align: center; background: #06C755; color: #fff; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin-top: 12px;">
+        <!-- 官方註冊按鈕 -->
+        <a href="https://www.atomy.com.tw/" target="_blank" rel="noopener noreferrer" class="action-btn btn-primary-custom">
             🌐 前往艾多美台灣官方網站註冊 ➔
         </a>
     </div>
 
-    <!-- 區塊二：教育中心查詢與選擇 -->
+    <!-- 區塊 4：教育中心查詢與選擇 -->
     <div class="section-box">
-        <div class="section-title">
-            <span>📍 教育中心查詢（第5步填寫用）</span>
-        </div>
-        <div style="font-size: 14px; color: #555; margin-bottom: 10px;">
-            註冊時需要填寫教育中心，請點選下方地區尋找離您最近的中心：
+        <div class="section-title">📍 教育中心快速查詢（第5步填寫用）</div>
+        <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 10px;">
+            註冊時需要填寫離您最近的教育中心，請點選下方地區快速尋找：
         </div>
         <div id="tags-wrapper"></div>
     </div>
@@ -181,191 +303,190 @@
         </div>
     </div>
 
-    <script>
-        const LIFF_ID = "2011043455-z9yvj9dV";
+</div>
 
-        const atomyCenters = [
-            { code: "W003", name: "艾多美 台北中路教育中心", address: "台北市中山區民權西路19號5樓", phone: "02-25850211" },
-            { code: "W004", name: "艾多美 台北站前教育中心", address: "臺北市中正區忠孝西路一段50號24樓之1", phone: "02-23317882" },
-            { code: "W005", name: "艾多美 高雄中山教育中心", address: "高雄市前鎮區中山二路91號9樓之5號", phone: "07-3347815" },
-            { code: "W006", name: "艾多美 新北信義教育中心", address: "新北市板橋區信義路103號1樓", phone: "02-29540808" },
-            { code: "W007", name: "艾多美 台南喜樂多教育中心", address: "臺南市東區東門路三段253號7樓之1", phone: "06-2891739" },
-            { code: "W008", name: "艾多美 高雄齊納福教育中心", address: "高雄市苓雅區中正二路20號5樓", phone: "07-9686688" },
-            { code: "W009", name: "艾多美 中壢千展教育中心", address: "桃園市中壢區中央東路88號21樓之1", phone: "03-4266090" },
-            { code: "W010", name: "艾多美 台中黎明教育中心", address: "臺中市南屯區黎明路一段812-10號2樓", phone: "04-23861507" },
-            { code: "W011", name: "艾多美 台北忠孝聯合教育中心", address: "台北市萬華區南寧路45-1號", phone: "02-23218809" },
-            { code: "W012", name: "艾多美 桃園藝文教育中心", address: "桃園市桃園區中正路1015號5樓", phone: "03-3566300" },
-            { code: "W013", name: "艾多美 台中冠軍教育中心", address: "臺中市北區忠明路428號", phone: "04-22026497" },
-            { code: "W014", name: "艾多美 台中朝馬教育中心", address: "台中市西屯區福順路250巷1號", phone: "04-24635728" },
-            { code: "W015", name: "艾多美 屏東信望愛教育中心", address: "屏東縣屏東市和平路354號4樓", phone: "08-7661909" },
-            { code: "W016", name: "艾多美 竹北耀威教育中心", address: "新竹縣竹北市仁和街70號1樓", phone: "03-5535019" },
-            { code: "W019", name: "艾多美 台中1491教育中心", address: "台中市北屯區崇德路二段130號5樓之2", phone: "04-22349191" },
-            { code: "W020", name: "艾多美 桃園尚倫教育中心", address: "桃園市八德區介壽路一段16巷52號1樓", phone: "03-3665226" },
-            { code: "W022", name: "艾多美 南投千峰教育中心", address: "南投縣草屯鎮新生路64號", phone: "04-92359292" },
-            { code: "W023", name: "艾多美 台中潭子教育中心", address: "台中市潭子區中山路二段178號", phone: "04-25355400" },
-            { code: "W024", name: "艾多美 嘉義六合教育中心", address: "嘉義市西區劉厝路219號", phone: "05-2833033" },
-            { code: "W025", name: "艾多美 草屯勝利教育中心", address: "南投縣草屯鎮成功路一段142號", phone: "04-92330142" },
-            { code: "W026", name: "艾多美 桃園龍潭教育中心", address: "桃園市龍潭區中豐路313號", phone: "03-4990628" },
-            { code: "W027", name: "艾多美 新北板橋教育中心", address: "新北市板橋區長江路三段62號", phone: "02-82588067" },
-            { code: "W028", name: "艾多美 台中豐原教育中心", address: "台中市豐原區圓環北路一段226-2號3樓", phone: "04-25270788" },
-            { code: "W030", name: "艾多美 新竹幸福教育中心", address: "新竹市東區新源街62巷15號", phone: "03-5350251" },
-            { code: "W031", name: "艾多美 新北卓越教育中心", address: "新北市新店區民權路88號2樓之4", phone: "02-22188088" },
-            { code: "W032", name: "艾多美 花蓮成功教育中心", address: "花蓮縣花蓮市國盛一街89號", phone: "03-8320927" },
-            { code: "W033", name: "艾多美 宜蘭禾家康教育中心", address: "宜蘭縣羅東鎮傳藝路三段216號2樓", phone: "03-9531532" },
-            { code: "W034", name: "艾多美 高雄鳳山教育中心", address: "高雄市鳳山區自由路164號11樓", phone: "07-7677619" },
-            { code: "W035", name: "艾多美 苗栗向陽教育中心", address: "苗栗縣竹南鎮三平路1號", phone: "03-7631549" },
-            { code: "W036", name: "艾多美 雲林斗六教育中心", address: "雲林縣斗六市明德北路二段407號", phone: "05-5335066" },
-            { code: "W037", name: "艾多美 高雄博愛教育中心", address: "高雄市三民區博愛一路70號7樓", phone: "07-3230681" },
-            { code: "W038", name: "艾多美 台南和緯教育中心", address: "台南市北區和緯路五段172號", phone: "06-2803446" },
-            { code: "W039", name: "艾多美 台南府城教育中心", address: "台南市中西區府前路一段283號7樓之5", phone: "06-2139196" },
-            { code: "W040", name: "艾多美 高雄全球教育中心", address: "高雄市鼓山區中華一路350號4樓之1", phone: "07-5227788" },
-            { code: "W041", name: "艾多美 新竹誠愛教育中心", address: "新竹市北區延平路三段667巷26號1樓", phone: "03-5360278" },
-            { code: "W042", name: "艾多美 內壢叮咚教育中心", address: "桃園市中壢區光華三街23號1樓", phone: "03-4621024" },
-            { code: "W043", name: "艾多美 岡山翔富教育中心", address: "高雄市岡山區文賢路37號", phone: "07-6211388" },
-            { code: "W044", name: "艾多美 新竹日光教育中心", address: "新竹縣湖口鄉龍安街20巷2號", phone: "03-5780301" },
-            { code: "W045", name: "艾多美 嘉義陽光教育中心", address: "嘉義市東區立仁路348號1樓", phone: "05-2277211" },
-            { code: "W046", name: "艾多美 基隆大月教育中心", address: "基隆市安樂區安一路166號1樓", phone: "02-24287803" },
-            { code: "W047", name: "艾多美 汐止齊心教育中心", address: "新北市汐止區中正路44號", phone: "02-26919905" },
-            { code: "W048", name: "艾多美 台南佳里教育中心", address: "台南市佳里區公園路666號2樓", phone: "06-7237217" },
-            { code: "W049", name: "艾多美 三重百兆教育中心", address: "新北市三重區三和路四段95-6號", phone: "02-82870949" },
-            { code: "W050", name: "艾多美 高雄飛揚教育中心", address: "高雄市左營區博愛三路502號", phone: "07-3502131" },
-            { code: "W051", name: "艾多美 台南永康教育中心", address: "台南市永康區中山東路192號", phone: "06-2010678" },
-            { code: "W052", name: "艾多美 屏東天意教育中心", address: "屏東縣屏東市瑞光路二段250號3樓", phone: "08-7350193" },
-            { code: "W053", name: "艾多美 台北富綠地教育中心", address: "台北市大安區忠孝東路四段148號5樓之10", phone: "02-27678285" },
-            { code: "W054", name: "艾多美 高雄皇冠教育中心", address: "高雄市三民區建工路613號4樓", phone: "07-3928638" },
-            { code: "W055", name: "艾多美 桃園青埔正善教育中心", address: "桃園市中壢區永順一街156號", phone: "03-2878833" },
-            { code: "W056", name: "艾多美 埔里成堡教育中心", address: "南投縣埔里鎮中正路260號", phone: "04-92900918" },
-            { code: "W057", name: "艾多美 高雄崇尚教育中心", address: "高雄市大寮區大寮路501號", phone: "07-7885562" },
-            { code: "W058", name: "艾多美 彰化金馬教育中心", address: "彰化縣彰化市茄苳路一段77號", phone: "04-7357248" },
-            { code: "W061", name: "艾多美 屏東鹽埔築夢教育中心", address: "屏東縣鹽埔鄉新二村德協路106之8號", phone: "08-7930099" },
-            { code: "W062", name: "艾多美 高雄旗山教育中心", address: "高雄市旗山區複新東街25號", phone: "07-6623141" },
-            { code: "W063", name: "艾多美 高雄楠梓教育中心", address: "高雄市楠梓區建楠路139號5F", phone: "07-3536666" },
-            { code: "W064", name: "艾多美 員林愛加倍教育中心", address: "彰化縣員林市大饒里柳橋路一段653號", phone: "04-8332915" },
-            { code: "W065", name: "艾多美 台中大里得勝教育中心", address: "台中市大里區新仁路一段217巷16號", phone: "04-24822325" },
-            { code: "W067", name: "艾多美 高雄永豐教育中心", address: "高雄市前鎮區永豐路36號3樓", phone: "07-7211236" },
-            { code: "W070", name: "艾多美 大台中教育中心", address: "台中市北屯區北屯路388之8號", phone: "04-22471389" },
-            { code: "W072", name: "艾多美 大甲順天教育中心", address: "台中市大甲區順天里文武路135號3樓", phone: "04-26763639" },
-            { code: "W073", name: "艾多美 台中沙鹿真愛教育中心", address: "台中市沙鹿區光榮街90巷9號", phone: "04-26627767" },
-            { code: "W074", name: "艾多美 台南新營教育中心", address: "台南市新營區三興街323號", phone: "06-6565789" },
-            { code: "W075", name: "艾多美 高雄橋頭富盛教育中心", address: "高雄市橋頭區成功北路180號", phone: "07-6130968" },
-            { code: "W076", name: "艾多美 台南真善美教育中心", address: "台南市永康區中華路12號六樓之3", phone: "06-3120716" },
-            { code: "W077", name: "艾多美 新北新禾教育中心", address: "新北市蘆洲區長安街267巷16號1樓", phone: "02-25671596" },
-            { code: "W078", name: "艾多美 中和齊美教育中心", address: "新北市中和區景平路646號一樓", phone: "02-22428835" },
-            { code: "W079", name: "艾多美 台中協力教育中心", address: "台中市西區五權5街151號7樓之2", phone: "04-23758315" },
-            { code: "W081", name: "艾多美 屏東禾樂教育中心", address: "屏東縣屏東市復興南路一段42之1號", phone: "08-7891858" },
-            { code: "W082", name: "艾多美 彰化埤頭教育中心", address: "彰化縣埤頭鄉合興村大同街365巷20號", phone: "04-8927525" },
-            { code: "W084", name: "艾多美 台南仁德教育中心", address: "台南市仁德區德南路30號2樓", phone: "06-2707018" },
-            { code: "W085", name: "艾多美 台中太平教育中心", address: "台中市太平區祥順路一段307號1樓", phone: "04-23910393" },
-            { code: "W086", name: "艾多美 平鎮一兆教育中心", address: "桃園市平鎮區南京路3號", phone: "03-4031008" },
-            { code: "W087", name: "艾多美 彰化伸港教育中心", address: "彰化縣伸港鄉濱二路30-2號西棟", phone: "04-7981867" },
-            { code: "W088", name: "艾多美 大雅閤益教育中心", address: "台中市大雅區學府路29號", phone: "04-25666258" },
-            { code: "W089", name: "艾多美 高雄睦樂教育中心", address: "高雄市鹽埕區光榮街86號1樓", phone: "07-5312531" },
-            { code: "W091", name: "艾多美 高雄成真教育中心", address: "高雄市小港區大鵬路119號2樓", phone: "07-8071218" },
-            { code: "W092", name: "艾多美 台中東區教育中心", address: "台中市東區東英十一街89號", phone: "04-22137899" },
-            { code: "W093", name: "艾多美 台中順翊教育中心", address: "台中市霧峰區樹仁路101號", phone: "04-23390273" },
-            { code: "W094", name: "艾多美 楊梅上穎教育中心", address: "桃園市楊梅區興南街10號", phone: "03-4316626" },
-            { code: "W097", name: "艾多美 三峽碩澄教育中心", address: "新北市三峽區國光街69號", phone: "02-26728845" },
-            { code: "W098", name: "艾多美 高雄禾昌教育中心", address: "高雄市楠梓區軍校路662號", phone: "07-3636398" },
-            { code: "W099", name: "艾多美 新莊福美教育中心", address: "新北市新莊區中港路中慶巷31號", phone: "02-29983528" },
-            { code: "W100", name: "艾多美 桃園龜山教育中心", address: "桃園市龜山區萬壽路2段725號", phone: "03-3505566" },
-            { code: "W101", name: "艾多美 嘉義朴子教育中心", address: "嘉義縣朴子市中興路81-6號", phone: "05-3625075" },
-            { code: "W102", name: "艾多美 彰化人人教育中心", address: "彰化縣田尾鄉中山路二段453號", phone: "04-8233968" },
-            { code: "W103", name: "艾多美 彰化建國教育中心", address: "彰化縣彰化市太極新村25號", phone: "04-7118426" },
-            { code: "W104", name: "艾多美 澎湖馬公教育中心", address: "澎湖縣馬公市西文澳92-29號", phone: "06-9212671" },
-            { code: "W105", name: "艾多美 金門金寧教育中心", address: "金門縣金寧鄉環島西路二段80巷1弄22號", phone: "08-2373133" },
-            { code: "W106", name: "艾多美 新北永和教育中心", address: "新北市永和區中興街139號", phone: "02-22622282" },
-            { code: "W107", name: "艾多美 竹東富強教育中心", address: "新竹縣竹東鎮北興路一段561號", phone: "03-5966868" },
-            { code: "W108", name: "艾多美 台南新化教育中心", address: "台南市新化區中正路309號", phone: "06-5907288" },
-            { code: "W109", name: "艾多美 金門沛豐教育中心", address: "金門縣金湖鎮武德新莊自強路6號", phone: "08-2333530" },
-            { code: "W110", name: "艾多美 南港新路教育中心", address: "台北市南港區東新街97號", phone: "02-27885898" },
-            { code: "W111", name: "艾多美 桃園八德禾采教育中心", address: "桃園市八德區豐德路571號", phone: "03-3681010" },
-            { code: "W112", name: "艾多美 內湖光樺教育中心", address: "台北市內湖區內湖路1段629巷12弄10號B1F", phone: "02-27996639" },
-            { code: "W113", name: "艾多美 大寮珍愛棋蹟教育中心", address: "高雄市大寮區中莊里四維路244號", phone: "07-7010591" },
-            { code: "W114", name: "艾多美 台東忠信教育中心", address: "台東縣台東市成功里信義路77號", phone: "08-9320522" }
-        ];
+<script>
+    const LIFF_ID = "2011043455-z9yvj9dV";
 
-        function initQuickTags() {
-            const wrapper = document.getElementById('tags-wrapper');
-            const districtSet = new Set();
+    const atomyCenters = [
+        { code: "W003", name: "艾多美 台北中路教育中心", address: "台北市中山區民權西路19號5樓", phone: "02-25850211" },
+        { code: "W004", name: "艾多美 台北站前教育中心", address: "臺北市中正區忠孝西路一段50號24樓之1", phone: "02-23317882" },
+        { code: "W005", name: "艾多美 高雄中山教育中心", address: "高雄市前鎮區中山二路91號9樓之5號", phone: "07-3347815" },
+        { code: "W006", name: "艾多美 新北信義教育中心", address: "新北市板橋區信義路103號1樓", phone: "02-29540808" },
+        { code: "W007", name: "艾多美 台南喜樂多教育中心", address: "臺南市東區東門路三段253號7樓之1", phone: "06-2891739" },
+        { code: "W008", name: "艾多美 高雄齊納福教育中心", address: "高雄市苓雅區中正二路20號5樓", phone: "07-9686688" },
+        { code: "W009", name: "艾多美 中壢千展教育中心", address: "桃園市中壢區中央東路88號21樓之1", phone: "03-4266090" },
+        { code: "W010", name: "艾多美 台中黎明教育中心", address: "臺中市南屯區黎明路一段812-10號2樓", phone: "04-23861507" },
+        { code: "W011", name: "艾多美 台北忠孝聯合教育中心", address: "台北市萬華區南寧路45-1號", phone: "02-23218809" },
+        { code: "W012", name: "艾多美 桃園藝文教育中心", address: "桃園市桃園區中正路1015號5樓", phone: "03-3566300" },
+        { code: "W013", name: "艾多美 台中冠軍教育中心", address: "臺中市北區忠明路428號", phone: "04-22026497" },
+        { code: "W014", name: "艾多美 台中朝馬教育中心", address: "台中市西屯區福順路250巷1號", phone: "04-24635728" },
+        { code: "W015", name: "艾多美 屏東信望愛教育中心", address: "屏東縣屏東市和平路354號4樓", phone: "08-7661909" },
+        { code: "W016", name: "艾多美 竹北耀威教育中心", address: "新竹縣竹北市仁和街70號1樓", phone: "03-5535019" },
+        { code: "W019", name: "艾多美 台中1491教育中心", address: "台中市北屯區崇德路二段130號5樓之2", phone: "04-22349191" },
+        { code: "W020", name: "艾多美 桃園尚倫教育中心", address: "桃園市八德區介壽路一段16巷52號1樓", phone: "03-3665226" },
+        { code: "W022", name: "艾多美 南投千峰教育中心", address: "南投縣草屯鎮新生路64號", phone: "04-92359292" },
+        { code: "W023", name: "艾多美 台中潭子教育中心", address: "台中市潭子區中山路二段178號", phone: "04-25355400" },
+        { code: "W024", name: "艾多美 嘉義六合教育中心", address: "嘉義市西區劉厝路219號", phone: "05-2833033" },
+        { code: "W025", name: "艾多美 草屯勝利教育中心", address: "南投縣草屯鎮成功路一段142號", phone: "04-92330142" },
+        { code: "W026", name: "艾多美 桃園龍潭教育中心", address: "桃園市龍潭區中豐路313號", phone: "03-4990628" },
+        { code: "W027", name: "艾多美 新北板橋教育中心", address: "新北市板橋區長江路三段62號", phone: "02-82588067" },
+        { code: "W028", name: "艾多美 台中豐原教育中心", address: "台中市豐原區圓環北路一段226-2號3樓", phone: "04-25270788" },
+        { code: "W030", name: "艾多美 新竹幸福教育中心", address: "新竹市東區新源街62巷15號", phone: "03-5350251" },
+        { code: "W031", name: "艾多美 新北卓越教育中心", address: "新北市新店區民權路88號2樓之4", phone: "02-22188088" },
+        { code: "W032", name: "艾多美 花蓮成功教育中心", address: "花蓮縣花蓮市國盛一街89號", phone: "03-8320927" },
+        { code: "W033", name: "艾多美 宜蘭禾家康教育中心", address: "宜蘭縣羅東鎮傳藝路三段216號2樓", phone: "03-9531532" },
+        { code: "W034", name: "艾多美 高雄鳳山教育中心", address: "高雄市鳳山區自由路164號11樓", phone: "07-7677619" },
+        { code: "W035", name: "艾多美 苗栗向陽教育中心", address: "苗栗縣竹南鎮三平路1號", phone: "03-7631549" },
+        { code: "W036", name: "艾多美 雲林斗六教育中心", address: "雲林縣斗六市明德北路二段407號", phone: "05-5335066" },
+        { code: "W037", name: "艾多美 高雄博愛教育中心", address: "高雄市三民區博愛一路70號7樓", phone: "07-3230681" },
+        { code: "W038", name: "艾多美 台南和緯教育中心", address: "台南市北區和緯路五段172號", phone: "06-2803446" },
+        { code: "W039", name: "艾多美 台南府城教育中心", address: "台南市中西區府前路一段283號7樓之5", phone: "06-2139196" },
+        { code: "W040", name: "艾多美 高雄全球教育中心", address: "高雄市鼓山區中華一路350號4樓之1", phone: "07-5227788" },
+        { code: "W041", name: "艾多美 新竹誠愛教育中心", address: "新竹市北區延平路三段667巷26號1樓", phone: "03-5360278" },
+        { code: "W042", name: "艾多美 內壢叮咚教育中心", address: "桃園市中壢區光華三街23號1樓", phone: "03-4621024" },
+        { code: "W043", name: "艾多美 岡山翔富教育中心", address: "高雄市岡山區文賢路37號", phone: "07-6211388" },
+        { code: "W044", name: "艾多美 新竹日光教育中心", address: "新竹縣湖口鄉龍安街20巷2號", phone: "03-5780301" },
+        { code: "W045", name: "艾多美 嘉義陽光教育中心", address: "嘉義市東區立仁路348號1樓", phone: "05-2277211" },
+        { code: "W046", name: "艾多美 基隆大月教育中心", address: "基隆市安樂區安一路166號1樓", phone: "02-24287803" },
+        { code: "W047", name: "艾多美 汐止齊心教育中心", address: "新北市汐止區中正路44號", phone: "02-26919905" },
+        { code: "W048", name: "艾多美 台南佳里教育中心", address: "台南市佳里區公園路666號2樓", phone: "06-7237217" },
+        { code: "W049", name: "艾多美 三重百兆教育中心", address: "新北市三重區三和路四段95-6號", phone: "02-82870949" },
+        { code: "W050", name: "艾多美 高雄飛揚教育中心", address: "高雄市左營區博愛三路502號", phone: "07-3502131" },
+        { code: "W051", name: "艾多美 台南永康教育中心", address: "台南市永康區中山東路192號", phone: "06-2010678" },
+        { code: "W052", name: "艾多美 屏東天意教育中心", address: "屏東縣屏東市瑞光路二段250號3樓", phone: "08-7350193" },
+        { code: "W053", name: "艾多美 台北富綠地教育中心", address: "台北市大安區忠孝東路四段148號5樓之10", phone: "02-27678285" },
+        { code: "W054", name: "艾多美 高雄皇冠教育中心", address: "高雄市三民區建工路613號4樓", phone: "07-3928638" },
+        { code: "W055", name: "艾多美 桃園青埔正善教育中心", address: "桃園市中壢區永順一街156號", phone: "03-2878833" },
+        { code: "W056", name: "艾多美 埔里成堡教育中心", address: "南投縣埔里鎮中正路260號", phone: "04-92900918" },
+        { code: "W057", name: "艾多美 高雄崇尚教育中心", address: "高雄市大寮區大寮路501號", phone: "07-7885562" },
+        { code: "W058", name: "艾多美 彰化金馬教育中心", address: "彰化縣彰化市茄苳路一段77號", phone: "04-7357248" },
+        { code: "W061", name: "艾多美 屏東鹽埔築夢教育中心", address: "屏東縣鹽埔鄉新二村德協路106之8號", phone: "08-7930099" },
+        { code: "W062", name: "艾多美 高雄旗山教育中心", address: "高雄市旗山區複新東街25號", phone: "07-6623141" },
+        { code: "W063", name: "艾多美 高雄楠梓教育中心", address: "高雄市楠梓區建楠路139號5F", phone: "07-3536666" },
+        { code: "W064", name: "艾多美 員林愛加倍教育中心", address: "彰化縣員林市大饒里柳橋路一段653號", phone: "04-8332915" },
+        { code: "W065", name: "艾多美 台中大里得勝教育中心", address: "台中市大里區新仁路一段217巷16號", phone: "04-24822325" },
+        { code: "W067", name: "艾多美 高雄永豐教育中心", address: "高雄市前鎮區永豐路36號3樓", phone: "07-7211236" },
+        { code: "W070", name: "艾多美 大台中教育中心", address: "台中市北屯區北屯路388之8號", phone: "04-22471389" },
+        { code: "W072", name: "艾多美 大甲順天教育中心", address: "台中市大甲區順天里文武路135號3樓", phone: "04-26763639" },
+        { code: "W073", name: "艾多美 台中沙鹿真愛教育中心", address: "台中市沙鹿區光榮街90巷9號", phone: "04-26627767" },
+        { code: "W074", name: "艾多美 台南新營教育中心", address: "台南市新營區三興街323號", phone: "06-6565789" },
+        { code: "W075", name: "艾多美 高雄橋頭富盛教育中心", address: "高雄市橋頭區成功北路180號", phone: "07-6130968" },
+        { code: "W076", name: "艾多美 台南真善美教育中心", address: "台南市永康區中華路12號六樓之3", phone: "06-3120716" },
+        { code: "W077", name: "艾多美 新北新禾教育中心", address: "新北市蘆洲區長安街267巷16號1樓", phone: "02-25671596" },
+        { code: "W078", name: "艾多美 中和齊美教育中心", address: "新北市中和區景平路646號一樓", phone: "02-22428835" },
+        { code: "W079", name: "艾多美 台中協力教育中心", address: "台中市西區五權5街151號7樓之2", phone: "04-23758315" },
+        { code: "W081", name: "艾多美 屏東禾樂教育中心", address: "屏東縣屏東市復興南路一段42之1號", phone: "08-7891858" },
+        { code: "W082", name: "艾多美 彰化埤頭教育中心", address: "彰化縣埤頭鄉合興村大同街365巷20號", phone: "04-8927525" },
+        { code: "W084", name: "艾多美 台南仁德教育中心", address: "台南市仁德區德南路30號2樓", phone: "06-2707018" },
+        { code: "W085", name: "艾多美 台中太平教育中心", address: "台中市太平區祥順路一段307號1樓", phone: "04-23910393" },
+        { code: "W086", name: "艾多美 平鎮一兆教育中心", address: "桃園市平鎮區南京路3號", phone: "03-4031008" },
+        { code: "W087", name: "艾多美 彰化伸港教育中心", address: "彰化縣伸港鄉濱二路30-2號西棟", phone: "04-7981867" },
+        { code: "W088", name: "艾多美 大雅閤益教育中心", address: "台中市大雅區學府路29號", phone: "04-25666258" },
+        { code: "W089", name: "艾多美 高雄睦樂教育中心", address: "高雄市鹽埕區光榮街86號1樓", phone: "07-5312531" },
+        { code: "W091", name: "艾多美 高雄成真教育中心", address: "高雄市小港區大鵬路119號2樓", phone: "07-8071218" },
+        { code: "W092", name: "艾多美 台中東區教育中心", address: "台中市東區東英十一街89號", phone: "04-22137899" },
+        { code: "W093", name: "艾多美 台中順翊教育中心", address: "台中市霧峰區樹仁路101號", phone: "04-23390273" },
+        { code: "W094", name: "艾多美 楊梅上穎教育中心", address: "桃園市楊梅區興南街10號", phone: "03-4316626" },
+        { code: "W097", name: "艾多美 三峽碩澄教育中心", address: "新北市三峽區國光街69號", phone: "02-26728845" },
+        { code: "W098", name: "艾多美 高雄禾昌教育中心", address: "高雄市楠梓區軍校路662號", phone: "07-3636398" },
+        { code: "W099", name: "艾多美 新莊福美教育中心", address: "新北市新莊區中港路中慶巷31號", phone: "02-29983528" },
+        { code: "W100", name: "艾多美 桃園龜山教育中心", address: "桃園市龜山區萬壽路2段725號", phone: "03-3505566" },
+        { code: "W101", name: "艾多美 嘉義朴子教育中心", address: "嘉義縣朴子市中興路81-6號", phone: "05-3625075" },
+        { code: "W102", name: "艾多美 彰化人人教育中心", address: "彰化縣田尾鄉中山路二段453號", phone: "04-8233968" },
+        { code: "W103", name: "艾多美 彰化建國教育中心", address: "彰化縣彰化市太極新村25號", phone: "04-7118426" },
+        { code: "W104", name: "艾多美 澎湖馬公教育中心", address: "澎湖縣馬公市西文澳92-29號", phone: "06-9212671" },
+        { code: "W105", name: "艾多美 金門金寧教育中心", address: "金門縣金寧鄉環島西路二段80巷1弄22號", phone: "08-2373133" },
+        { code: "W106", name: "艾多美 新北永和教育中心", address: "新北市永和區中興街139號", phone: "02-22622282" },
+        { code: "W107", name: "艾多美 竹東富強教育中心", address: "新竹縣竹東鎮北興路一段561號", phone: "03-5966868" },
+        { code: "W108", name: "艾多美 台南新化教育中心", address: "台南市新化區中正路309號", phone: "06-5907288" },
+        { code: "W109", name: "艾多美 金門沛豐教育中心", address: "金門縣金湖鎮武德新莊自強路6號", phone: "08-2333530" },
+        { code: "W110", name: "艾多美 南港新路教育中心", address: "台北市南港區東新街97號", phone: "02-27885898" },
+        { code: "W111", name: "艾多美 桃園八德禾采教育中心", address: "桃園市八德區豐德路571號", phone: "03-3681010" },
+        { code: "W112", name: "艾多美 內湖光樺教育中心", address: "台北市內湖區內湖路1段629巷12弄10號B1F", phone: "02-27996639" },
+        { code: "W113", name: "艾多美 大寮珍愛棋蹟教育中心", address: "高雄市大寮區中莊里四維路244號", phone: "07-7010591" },
+        { code: "W114", name: "艾多美 台東忠信教育中心", address: "台東縣台東市成功里信義路77號", phone: "08-9320522" }
+    ];
 
-            atomyCenters.forEach(c => {
-                if (c.address) {
-                    let city = c.address.substring(0, 3).replace("臺", "台");
-                    if (city.endsWith("市") || city.endsWith("縣")) {
-                        districtSet.add(city);
-                    }
+    function initQuickTags() {
+        const wrapper = document.getElementById('tags-wrapper');
+        const districtSet = new Set();
+
+        atomyCenters.forEach(c => {
+            if (c.address) {
+                let city = c.address.substring(0, 3).replace("臺", "台");
+                if (city.endsWith("市") || city.endsWith("縣")) {
+                    districtSet.add(city);
                 }
-            });
-
-            districtSet.forEach(district => {
-                const btn = document.createElement('button');
-                btn.className = 'tag-btn';
-                btn.innerText = district;
-                btn.onclick = () => quickSearch(district);
-                wrapper.appendChild(btn);
-            });
-        }
-
-        function quickSearch(keyword) {
-            let cleanQuery = keyword.replace(/(新北市|臺北市|台北市|桃園市|台中市|臺中市|高雄市|市|區|縣|教育中心|艾多美)/g, "").trim();
-            if (cleanQuery.length === 0) cleanQuery = keyword;
-
-            const query = cleanQuery.replace("臺", "台");
-
-            const filtered = atomyCenters.filter(c => 
-                c.name.replace("臺", "台").includes(query) || 
-                c.address.replace("臺", "台").includes(query)
-            );
-
-            renderList(filtered, `"${keyword}" 相關據點 (${filtered.length} 筆)`);
-        }
-
-        function renderList(centers, statusText) {
-            const listEl = document.getElementById('center-list');
-            const countEl = document.getElementById('result-count');
-            listEl.innerHTML = '';
-
-            countEl.innerText = statusText || `找到 ${centers.length} 間據點`;
-
-            if (centers.length === 0) {
-                listEl.innerHTML = '<div class="empty-tip">未找到相關教育中心，請選擇其他地區標籤。</div>';
-                return;
             }
-
-            centers.forEach(center => {
-                const googleNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(center.address)}`;
-                let copyTargetName = center.name.replace(/^艾多美\s*/, "").replace(/教育中心$/, "").trim();
-
-                const card = document.createElement('div');
-                card.className = 'center-card';
-                card.innerHTML = `
-                    <div class="card-name">${center.name}</div>
-                    <div class="card-info">📌 ${center.address}</div>
-                    <div class="card-info">📞 ${center.phone}</div>
-                    <div class="card-actions">
-                        <a href="tel:${center.phone}" class="action-btn btn-call">撥打</a>
-                        <a href="${googleNavUrl}" target="_blank" class="action-btn btn-nav">🗺️ 導航</a>
-                        <button class="action-btn btn-copy" onclick="copyText('${copyTargetName}')">📋 複製名稱</button>
-                    </div>
-                `;
-
-                listEl.appendChild(card);
-            });
-        }
-
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert(`已成功複製：${text}`);
-            }).catch(err => {
-                console.error("複製失敗", err);
-                alert("複製失敗，請手動複製。");
-            });
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            initQuickTags();
-            liff.init({ liffId: LIFF_ID }).catch(err => console.error("LIFF 初始化失敗:", err));
         });
-    </script>
+
+        districtSet.forEach(district => {
+            const btn = document.createElement('button');
+            btn.className = 'tag-btn';
+            btn.innerText = district;
+            btn.onclick = () => quickSearch(district);
+            wrapper.appendChild(btn);
+        });
+    }
+
+    function quickSearch(keyword) {
+        let cleanQuery = keyword.replace(/(新北市|臺北市|台北市|桃園市|台中市|臺中市|高雄市|市|區|縣|教育中心|艾多美)/g, "").trim();
+        if (cleanQuery.length === 0) cleanQuery = keyword;
+        const query = cleanQuery.replace("臺", "台");
+
+        const filtered = atomyCenters.filter(c => 
+            c.name.replace("臺", "台").includes(query) || 
+            c.address.replace("臺", "台").includes(query)
+        );
+
+        renderList(filtered, `"${keyword}" 相關據點 (${filtered.length} 筆)`);
+    }
+
+    function renderList(centers, statusText) {
+        const listEl = document.getElementById('center-list');
+        const countEl = document.getElementById('result-count');
+        listEl.innerHTML = '';
+        countEl.innerText = statusText || `找到 ${centers.length} 間據點`;
+
+        if (centers.length === 0) {
+            listEl.innerHTML = '<div class="empty-tip">未找到相關教育中心，請選擇其他地區標籤。</div>';
+            return;
+        }
+
+        centers.forEach(center => {
+            const googleNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(center.address)}`;
+            let copyTargetName = center.name.replace(/^艾多美\s*/, "").replace(/教育中心$/, "").trim();
+
+            const card = document.createElement('div');
+            card.className = 'center-card';
+            card.innerHTML = `
+                <div class="card-name">${center.name}</div>
+                <div class="card-info">📌 ${center.address}</div>
+                <div class="card-info">📞 ${center.phone}</div>
+                <div class="card-actions">
+                    <a href="tel:${center.phone}" class="action-btn btn-call" style="padding:8px 0;">撥打</a>
+                    <a href="${googleNavUrl}" target="_blank" class="action-btn btn-nav" style="padding:8px 0;">🗺️ 導航</a>
+                    <button class="action-btn btn-copy" onclick="copyText('${copyTargetName}')" style="padding:8px 0;">📋 複製名稱</button>
+                </div>
+            `;
+            listEl.appendChild(card);
+        });
+    }
+
+    function copyText(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert(`已成功複製：${text}`);
+        }).catch(err => {
+            console.error("複製失敗", err);
+            alert("複製失敗，請手動複製。");
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        initQuickTags();
+        liff.init({ liffId: LIFF_ID }).catch(err => console.error("LIFF 初始化失敗:", err));
+    });
+</script>
 </body>
 </html>
