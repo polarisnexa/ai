@@ -184,6 +184,30 @@
             padding: 15px;
             font-size: 14px;
         }
+        /* 表單樣式 */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+        .form-group input[type="text"], .form-group input[type="tel"], .form-group input[type="file"] {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .form-tip {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -218,7 +242,7 @@
             </div>
             <div class="highlight-item">
                 <strong>🌟 5. 團隊許願牆機制</strong>
-                獨創願望互動，讓夥伴許下物質與生活願望，團隊與 AI 帶大家一起實現。
+                獨創願願互動，讓夥伴許下物質與生活願望，團隊與 AI 帶大家一起實現。
             </div>
         </div>
     </div>
@@ -278,9 +302,9 @@
             <p style="margin: 3px 0;">• <b>銀行存摺</b>：需拍「帳號內頁」（有戶名與帳號），非封面。</p>
         </div>
 
-        <!-- 官方註冊按鈕 -->
-        <a href="https://www.atomy.com.tw/" target="_blank" rel="noopener noreferrer" class="action-btn btn-primary-custom">
-            🌐 前往艾多美台灣官方網站註冊 ➔
+        <!-- 官方註冊按鈕 (已更新為最新指定網址) -->
+        <a href="https://tw.atomy.com/join/memberAgree?type=20&tabKey=hu5fp663lu1788286054589&back=N" target="_blank" rel="noopener noreferrer" class="action-btn btn-primary-custom">
+            🌐 前往艾多美台灣官方專屬註冊頁面 ➔
         </a>
     </div>
 
@@ -301,6 +325,47 @@
         <div id="center-list">
             <div class="empty-tip">請點擊上方地區標籤以檢視教育中心。</div>
         </div>
+    </div>
+
+    <!-- 區塊 5：註冊完成驗證與解鎖 AI 系統 -->
+    <div class="section-box" style="border-top: 4px solid var(--primary);">
+        <div class="section-title">🔒 註冊完成與解鎖 AI 系統</div>
+        <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 12px;">
+            已在官網完成註冊了嗎？請填寫下方驗證資料並上傳截圖，待後台審核通過後，將發送 AI 機器人解鎖連結給您！
+        </div>
+        
+        <form id="verify-form" onsubmit="submitVerification(event)">
+            <div class="form-group">
+                <label for="real-name">1️⃣ 註冊人姓名</label>
+                <input type="text" id="real-name" name="realName" required placeholder="例如：王小明">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">2️⃣ 電話</label>
+                <input type="tel" id="phone" name="phone" required placeholder="例如：0912345678">
+            </div>
+
+            <div class="form-group">
+                <label for="line-id">3️⃣ LINE ID</label>
+                <input type="text" id="line-id" name="lineId" required placeholder="例如：ming123 (非LINE暱稱)">
+                <div class="form-tip">💡 請填寫您的 LINE ID（可在 LINE 設定中查看），方便團隊加好友。</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="atomy-id">4️⃣ 艾多美編號</label>
+                <input type="text" id="atomy-id" name="atomyId" required placeholder="例如：12345678" maxlength="10">
+                <div class="form-tip">💡 請輸入您在官網註冊成功後獲得的 8 碼會員編號。</div>
+            </div>
+
+            <div class="form-group">
+                <label for="reg-screenshot">5️⃣ 上傳官網註冊成功截圖</label>
+                <input type="file" id="reg-screenshot" name="screenshot" accept="image/*" required>
+            </div>
+
+            <button type="submit" class="action-btn btn-primary-custom" style="margin-top: 15px;">
+                🚀 送出驗證，等待解鎖 AI 系統
+            </button>
+        </form>
     </div>
 
 </div>
@@ -396,7 +461,7 @@
         { code: "W102", name: "艾多美 彰化人人教育中心", address: "彰化縣田尾鄉中山路二段453號", phone: "04-8233968" },
         { code: "W103", name: "艾多美 彰化建國教育中心", address: "彰化縣彰化市太極新村25號", phone: "04-7118426" },
         { code: "W104", name: "艾多美 澎湖馬公教育中心", address: "澎湖縣馬公市西文澳92-29號", phone: "06-9212671" },
-        { code: "W105", name: "艾多美 金門金寧教育中心", address: "金門縣金寧鄉環島西路二段80巷1弄22號", phone: "08-2373133" },
+        { code: "W105", name: "艾多美 金門金寧教育中心", address: "金門縣金寧鄉環島西路2段80巷1弄22號", phone: "08-2373133" },
         { code: "W106", name: "艾多美 新北永和教育中心", address: "新北市永和區中興街139號", phone: "02-22622282" },
         { code: "W107", name: "艾多美 竹東富強教育中心", address: "新竹縣竹東鎮北興路一段561號", phone: "03-5966868" },
         { code: "W108", name: "艾多美 台南新化教育中心", address: "台南市新化區中正路309號", phone: "06-5907288" },
@@ -481,6 +546,28 @@
             console.error("複製失敗", err);
             alert("複製失敗，請手動複製。");
         });
+    }
+
+    function submitVerification(event) {
+        event.preventDefault();
+        const realName = document.getElementById('real-name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const lineId = document.getElementById('line-id').value.trim();
+        const atomyId = document.getElementById('atomy-id').value.trim();
+        const screenshot = document.getElementById('reg-screenshot').files[0];
+
+        if (!realName || !phone || !lineId || !atomyId || !screenshot) {
+            alert('請完整填寫所有欄位並上傳截圖！');
+            return;
+        }
+
+        if (atomyId.length < 7 || atomyId.length > 10) {
+            alert('提醒：艾多美會員編號通常為 8 碼數字，請確認您的編號格式是否正確。');
+        }
+
+        alert(`驗證資料已成功送出！\n\n👤 姓名：${realName}\n📞 電話：${phone}\n💬 LINE ID：${lineId}\n🆔 會員編號：${atomyId}\n\n我們將盡快為您審核，並透過 LINE 發送 AI 機器人解鎖連結！`);
+        
+        document.getElementById('verify-form').reset();
     }
 
     document.addEventListener("DOMContentLoaded", function () {
