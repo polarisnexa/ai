@@ -6,31 +6,35 @@
     <title>外送極速懸浮球</title>
     <style>
         body {
-            background-color: transparent; /* 背景透明，讓懸浮感更真實 */
+            background-color: transparent;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 4px;
+            padding: 0;
             overflow: hidden;
+            /* 強制讓整個頁面內容以右上角為基準縮小，突破瀏覽器最小寬度限制 */
+            transform: scale(0.65);
+            transform-origin: top right;
+            width: 153%; /* 縮小時補足寬度 (100 / 0.65 ≈ 153) */
         }
 
-        /* 浮動主容器 (貼齊右側或隨意放置) */
+        /* 浮動主容器 (靠右對齊) */
         .float-container {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: 8px;
+            padding: 5px;
         }
 
-        /* 圓形主按鈕 (平時最小化的小圓球) */
+        /* 圓形主按鈕 (縮小後會變得非常小巧) */
         .bubble-btn {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             background-color: #00897B;
             color: white;
             border: 2px solid white;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -71,12 +75,12 @@
             cursor: pointer;
         }
 
-        /* 圓角好按的大按鈕組 */
+        /* 膠囊按鈕 */
         .action-btn {
             width: 100%;
             padding: 10px;
             border: none;
-            border-radius: 25px; /* 圓滾滾的膠囊按鈕 */
+            border-radius: 25px;
             font-size: 13px;
             font-weight: bold;
             color: white;
@@ -100,10 +104,10 @@
 <body>
 
     <div class="float-container">
-        <!-- 貼在螢幕邊緣的懸浮圓球 -->
+        <!-- 懸浮小圓球 -->
         <div class="bubble-btn" id="main-bubble" onclick="togglePanel()">🛵</div>
 
-        <!-- 點擊圓球後展開的控制面板 -->
+        <!-- 展開面板 -->
         <div class="control-panel" id="control-panel">
             <div class="panel-header">
                 <span id="order-title">外送快打</span>
@@ -111,7 +115,8 @@
             </div>
 
             <div id="panel-body">
-                <!-- 預設顯示新增/接單按鈕 -->
+                <!-- 預設顯示累計件數與接單按鈕 -->
+                <div style="font-size: 11px; color: #81C784; text-align: center; margin-bottom: 6px;" id="today-count-hint">今日已累積：0 件</div>
                 <button class="action-btn btn-accept" onclick="addNewOrder()">➕ 接新單 (記錄時間)</button>
             </div>
         </div>
@@ -122,13 +127,49 @@
         let orderData = {};
         let isPanelOpen = false;
 
-        // 切換面板展開/收合
+        window.onload = function() {
+            checkAndResetDailyCount();
+            updateCountHint();
+        };
+
+        function getTodayOrderNumber() {
+            const todayStr = new Date().toDateString();
+            let savedDate = localStorage.getItem('delivery_date');
+            let currentCount = parseInt(localStorage.getItem('delivery_count') || '0');
+
+            if (savedDate !== todayStr) {
+                localStorage.setItem('delivery_date', todayStr);
+                localStorage.setItem('delivery_count', '0');
+                currentCount = 0;
+            }
+            return currentCount;
+        }
+
+        function incrementOrderNumber() {
+            let count = getTodayOrderNumber() + 1;
+            localStorage.setItem('delivery_count', count);
+            return count;
+        }
+
+        function checkAndResetDailyCount() {
+            getTodayOrderNumber();
+        }
+
+        function updateCountHint() {
+            const count = getTodayOrderNumber();
+            const hintElem = document.getElementById('today-count-hint');
+            if (hintElem) {
+                hintElem.innerText = `今日已累積：${count} 件`;
+            }
+        }
+
         function togglePanel() {
             isPanelOpen = !isPanelOpen;
             const panel = document.getElementById('control-panel');
             const bubble = document.getElementById('main-bubble');
             
             if (isPanelOpen) {
+                updateCountHint();
                 panel.style.display = 'block';
                 bubble.style.transform = 'scale(0.8)';
             } else {
@@ -137,32 +178,31 @@
             }
         }
 
-        // 新增/接單
         function addNewOrder() {
+            const orderNum = incrementOrderNumber();
             const now = new Date();
             const timeStr = now.toTimeString().split(' ')[0];
             currentOrderId = 'order_' + Date.now();
 
             orderData[currentOrderId] = {
+                orderNum: orderNum,
                 acceptTime: now,
                 startTime: null,
                 startLat: null,
                 startLon: null
             };
 
-            // 抓取接單 GPS
             getGPS(currentOrderId, '接單');
 
-            // 轉換面板介面為「取餐 / 送達」控制鈕
-            document.getElementById('order-title').innerText = `進行中訂單 (${timeStr})`;
+            document.getElementById('order-title').innerText = `單 ${orderNum} 進行中`;
             document.getElementById('panel-body').innerHTML = `
+                <div style="font-size: 11px; color: #4FC3F7; text-align: center; margin-bottom: 4px;">接單時間: ${timeStr}</div>
                 <button class="action-btn btn-start" onclick="recordAction('取餐')">🟢 點擊取餐</button>
                 <button class="action-btn btn-end" onclick="recordAction('送達')">🔴 點擊送達</button>
-                <div id="action-status" class="status-text" style="color: #81C784;">已接單完成</div>
+                <div id="action-status" class="status-text" style="color: #81C784;">已記錄接單</div>
             `;
         }
 
-        // 記錄動作 (取餐 / 送達)
         function recordAction(actionType) {
             const now = new Date();
             const timeStr = now.toTimeString().split(' ')[0];
@@ -173,26 +213,24 @@
                 statusDiv.innerHTML = `🟢 已取餐: ${timeStr}`;
             } 
             else if (actionType === '送達') {
-                statusDiv.innerHTML = `<span style="color:#FF5252; font-weight:bold;">🔴 已送達！資料暫存</span>`;
+                statusDiv.innerHTML = `<span style="color:#FF5252; font-weight:bold;">🔴 已送達！完成存檔</span>`;
                 
-                // 0.8秒後自動收合並重置，畫面恢復最乾淨的小圓球
                 setTimeout(() => {
                     resetBubble();
                 }, 800);
             }
         }
 
-        // 重置懸浮球回到初始狀態
         function resetBubble() {
             currentOrderId = null;
             document.getElementById('order-title').innerText = '外送快打';
             document.getElementById('panel-body').innerHTML = `
+                <div style="font-size: 11px; color: #81C784; text-align: center; margin-bottom: 6px;" id="today-count-hint">今日已累積：${getTodayOrderNumber()} 件</div>
                 <button class="action-btn btn-accept" onclick="addNewOrder()">➕ 接新單 (記錄時間)</button>
             `;
-            togglePanel(); // 自動收合面板
+            togglePanel();
         }
 
-        // 抓取 GPS
         function getGPS(orderId, actionType) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
