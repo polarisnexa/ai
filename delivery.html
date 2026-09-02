@@ -3,129 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>外送極速懸浮球</title>
+    <title>外送極速面板</title>
     <style>
         body {
-            background-color: transparent;
+            background-color: #121212; /* 深色護眼背景 */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 0;
-            overflow: hidden;
-            /* 強制讓整個頁面內容以右上角為基準縮小，突破瀏覽器最小寬度限制 */
-            transform: scale(0.65);
-            transform-origin: top right;
-            width: 153%; /* 縮小時補足寬度 (100 / 0.65 ≈ 153) */
-        }
-
-        /* 浮動主容器 (靠右對齊) */
-        .float-container {
+            padding: 6px;
+            color: white;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            gap: 8px;
-            padding: 5px;
-        }
-
-        /* 圓形主按鈕 (縮小後會變得非常小巧) */
-        .bubble-btn {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background-color: #00897B;
-            color: white;
-            border: 2px solid white;
-            font-size: 24px;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            user-select: none;
-            transition: transform 0.2s;
-        }
-        .bubble-btn:active { transform: scale(0.9); }
-
-        /* 展開後的控制面板 */
-        .control-panel {
-            display: none;
-            background: rgba(30, 30, 30, 0.95);
-            backdrop-filter: blur(5px);
-            border: 1px solid #444;
-            border-radius: 12px;
-            padding: 10px;
-            width: 220px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.5);
-            color: white;
         }
 
-        .panel-header {
+        .container {
+            width: 100%;
+            max-width: 280px;
+        }
+
+        /* 頂部資訊列 */
+        .top-bar {
+            background: #1E1E1E;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
-            font-size: 12px;
-            color: #AAA;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
-        .btn-close-panel {
-            background: none;
-            border: none;
-            color: #EF5350;
+        .app-title {
             font-size: 14px;
-            cursor: pointer;
+            font-weight: bold;
+            color: #00BFA5;
         }
 
-        /* 膠囊按鈕 */
+        .count-badge {
+            font-size: 13px;
+            color: #81C784;
+            background: #252525;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid #444;
+        }
+
+        /* 動作按鈕：超大、清晰好點 */
         .action-btn {
             width: 100%;
-            padding: 10px;
+            padding: 14px;
             border: none;
-            border-radius: 25px;
-            font-size: 13px;
+            border-radius: 8px;
+            font-size: 16px; /* 字體放大，清晰好辨識 */
             font-weight: bold;
             color: white;
             cursor: pointer;
             text-align: center;
             margin-bottom: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
-        .btn-accept { background-color: #0288D1; } /* 藍：新單/接單 */
-        .btn-start  { background-color: #2E7D32; } /* 綠：取餐 */
-        .btn-end    { background-color: #C62828; } /* 紅：送達 */
+
+        .btn-accept { background-color: #0288D1; } /* 藍：接新單 */
+        .btn-start  { background-color: #2E7D32; } /* 綠：點擊取餐 */
+        .btn-end    { background-color: #C62828; } /* 紅：點擊送達 */
         
-        .status-text {
-            font-size: 11px;
-            color: #DDD;
+        .action-btn:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .status-box {
+            background: #1E1E1E;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px;
             text-align: center;
+            font-size: 13px;
+            color: #DDD;
             margin-top: 4px;
         }
     </style>
 </head>
 <body>
 
-    <div class="float-container">
-        <!-- 懸浮小圓球 -->
-        <div class="bubble-btn" id="main-bubble" onclick="togglePanel()">🛵</div>
+    <div class="container" id="main-container">
+        <!-- 頂部標題與今日累計 -->
+        <div class="top-bar">
+            <span class="app-title">🛵 外送快打</span>
+            <span class="count-badge" id="today-count-hint">今日: 0件</span>
+        </div>
 
-        <!-- 展開面板 -->
-        <div class="control-panel" id="control-panel">
-            <div class="panel-header">
-                <span id="order-title">外送快打</span>
-                <button class="btn-close-panel" onclick="togglePanel()">✕</button>
-            </div>
-
-            <div id="panel-body">
-                <!-- 預設顯示累計件數與接單按鈕 -->
-                <div style="font-size: 11px; color: #81C784; text-align: center; margin-bottom: 6px;" id="today-count-hint">今日已累積：0 件</div>
-                <button class="action-btn btn-accept" onclick="addNewOrder()">➕ 接新單 (記錄時間)</button>
-            </div>
+        <!-- 動態面板區域 -->
+        <div id="panel-body">
+            <button class="action-btn btn-accept" onclick="addNewOrder()">➕ 接新單 (記錄時間)</button>
         </div>
     </div>
 
     <script>
         let currentOrderId = null;
         let orderData = {};
-        let isPanelOpen = false;
 
         window.onload = function() {
             checkAndResetDailyCount();
@@ -159,29 +136,17 @@
             const count = getTodayOrderNumber();
             const hintElem = document.getElementById('today-count-hint');
             if (hintElem) {
-                hintElem.innerText = `今日已累積：${count} 件`;
+                hintElem.innerText = `今日: ${count}件`;
             }
         }
 
-        function togglePanel() {
-            isPanelOpen = !isPanelOpen;
-            const panel = document.getElementById('control-panel');
-            const bubble = document.getElementById('main-bubble');
-            
-            if (isPanelOpen) {
-                updateCountHint();
-                panel.style.display = 'block';
-                bubble.style.transform = 'scale(0.8)';
-            } else {
-                panel.style.display = 'none';
-                bubble.style.transform = 'scale(1)';
-            }
-        }
-
+        // 新增/接單
         function addNewOrder() {
             const orderNum = incrementOrderNumber();
+            updateCountHint();
+            
             const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0];
+            const timeStr = now.toTimeString().split(' ')[0].substring(0, 5); // 顯示 HH:MM
             currentOrderId = 'order_' + Date.now();
 
             orderData[currentOrderId] = {
@@ -194,41 +159,53 @@
 
             getGPS(currentOrderId, '接單');
 
-            document.getElementById('order-title').innerText = `單 ${orderNum} 進行中`;
+            // 轉換為取餐/送達大按鈕
             document.getElementById('panel-body').innerHTML = `
-                <div style="font-size: 11px; color: #4FC3F7; text-align: center; margin-bottom: 4px;">接單時間: ${timeStr}</div>
+                <div class="status-box" style="margin-bottom: 6px; color: #4FC3F7; font-weight: bold;">
+                    單 ${orderNum} 進行中 (${timeStr} 接單)
+                </div>
                 <button class="action-btn btn-start" onclick="recordAction('取餐')">🟢 點擊取餐</button>
                 <button class="action-btn btn-end" onclick="recordAction('送達')">🔴 點擊送達</button>
-                <div id="action-status" class="status-text" style="color: #81C784;">已記錄接單</div>
             `;
         }
 
+        // 記錄動作 (取餐 / 送達)
         function recordAction(actionType) {
             const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0];
-            const statusDiv = document.getElementById('action-status');
+            const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
+            const orderNum = localStorage.getItem('delivery_count');
 
             if (actionType === '取餐') {
                 orderData[currentOrderId].startTime = now;
-                statusDiv.innerHTML = `🟢 已取餐: ${timeStr}`;
+                document.getElementById('panel-body').innerHTML = `
+                    <div class="status-box" style="margin-bottom: 6px; color: #81C784; font-weight: bold;">
+                        單 ${orderNum} 已取餐 (${timeStr})
+                    </div>
+                    <button class="action-btn btn-start" style="opacity: 0.5;" disabled>🟢 已取餐</button>
+                    <button class="action-btn btn-end" onclick="recordAction('送達')">🔴 點擊送達</button>
+                `;
             } 
             else if (actionType === '送達') {
-                statusDiv.innerHTML = `<span style="color:#FF5252; font-weight:bold;">🔴 已送達！完成存檔</span>`;
+                document.getElementById('panel-body').innerHTML = `
+                    <div class="status-box" style="color: #FF5252; font-weight: bold;">
+                        🔴 單 ${orderNum} 已完成！
+                    </div>
+                `;
                 
+                // 1秒後自動恢復成「接新單」按鈕，準備接下一單
                 setTimeout(() => {
-                    resetBubble();
-                }, 800);
+                    resetPanel();
+                }, 1000);
             }
         }
 
-        function resetBubble() {
+        // 重置面板回到接單狀態
+        function resetPanel() {
             currentOrderId = null;
-            document.getElementById('order-title').innerText = '外送快打';
+            updateCountHint();
             document.getElementById('panel-body').innerHTML = `
-                <div style="font-size: 11px; color: #81C784; text-align: center; margin-bottom: 6px;" id="today-count-hint">今日已累積：${getTodayOrderNumber()} 件</div>
                 <button class="action-btn btn-accept" onclick="addNewOrder()">➕ 接新單 (記錄時間)</button>
             `;
-            togglePanel();
         }
 
         function getGPS(orderId, actionType) {
