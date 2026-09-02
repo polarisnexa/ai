@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外送智慧打卡面板</title>
+    <style>
+        body {
+            background-color: #f4f4f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 340px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        h3 {
+            margin: 0 0 8px 0;
+            font-size: 15px;
+            color: #333;
+            text-align: center;
+        }
+        .btn-add {
+            width: 100%;
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-add:active { background-color: #1976D2; }
+        
+        .order-card {
+            background: #f9f9fb;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .order-input {
+            width: 70%;
+            padding: 4px 6px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333;
+        }
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-delete:hover { color: #F44336; }
+        
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+        .btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-start { background-color: #4CAF50; } /* 綠色：取餐 */
+        .btn-end { background-color: #F44336; }   /* 紅色：送達 */
+        .status-text {
+            font-size: 11px;
+            color: #555;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3>🛵 智慧夾單打卡面板</h3>
+        
+        <!-- 新增訂單按鈕 -->
+        <button class="btn-add" onclick="addOrderCard()">➕ 新增一筆訂單</button>
+
+        <!-- 訂單動態卡片區 -->
+        <div id="orders-container"></div>
+    </div>
+
+    <script>
+        let orderCount = 0;
+        let orderData = {};
+
+        // 頁面載入時自動產生第一張單
+        window.onload = function() {
+            addOrderCard();
+        };
+
+        // 動態新增訂單卡片
+        function addOrderCard() {
+            orderCount++;
+            const orderId = orderCount;
+            orderData[orderId] = { startTime: null, startLat: null, startLon: null };
+
+            const container = document.getElementById("orders-container");
+            const card = document.createElement("div");
+            card.className = "order-card";
+            card.id = `card-${orderId}`;
+            
+            card.innerHTML = `
+                <div class="order-header">
+                    <input type="text" class="order-input" id="name-${orderId}" value="訂單 ${orderId}">
+                    <button class="btn-delete" onclick="removeOrderCard(${orderId})">✖ 移除</button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-start" onclick="recordOrder(${orderId}, '取餐')">🟢 取餐</button>
+                    <button class="btn btn-end" onclick="recordOrder(${orderId}, '完成')">🔴 送達</button>
+                </div>
+                <div id="status-${orderId}" class="status-text">狀態：準備中</div>
+            `;
+            container.appendChild(card);
+        }
+
+        // 移除卡片
+        function removeOrderCard(orderId) {
+            const card = document.getElementById(`card-${orderId}`);
+            if (card) {
+                card.remove();
+                delete orderData[orderId];
+            }
+        }
+
+        // 記錄動作與 GPS 座標
+        function recordOrder(orderId, actionType) {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0]; // 取得 HH:MM:SS
+            const statusDiv = document.getElementById(`status-${orderId}`);
+            const customName = document.getElementById(`name-${orderId}`).value;
+
+            if (actionType === '取餐') {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            orderData[orderId].startTime = now;
+                            orderData[orderId].startLat = position.coords.latitude;
+                            orderData[orderId].startLon = position.coords.longitude;
+                            statusDiv.innerHTML = `[${customName}] <span style="color:green">已取餐 (${timeStr})</span>`;
+                        },
+                        (error) => {
+                            orderData[orderId].startTime = now;
+                            statusDiv.innerHTML = `[${customName}] <span style="color:green">已取餐 (${timeStr}) [無GPS]</span>`;
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+                } else {
+                    orderData[orderId].startTime = now;
+                    statusDiv.innerHTML = `[${customName}] <span style="color:green">已取餐 (${timeStr})</span>`;
+                }
+            } 
+            else if (actionType === '完成') {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const endLat = position.coords.latitude;
+                            const endLon = position.coords.longitude;
+                            
+                            let timeSpent = "";
+                            if (orderData[orderId].startTime) {
+                                let diffMinutes = Math.floor((now - orderData[orderId].startTime) / 60000);
+                                timeSpent = `，耗時 ${diffMinutes} 分`;
+                            }
+
+                            let distanceMeters = 0;
+                            if (orderData[orderId].startLat) {
+                                distanceMeters = calculateDistance(
+                                    orderData[orderId].startLat, orderData[orderId].startLon,
+                                    endLat, endLon
+                                );
+                            }
+
+                            statusDiv.innerHTML = `[${customName}] <span style="color:red">已送達 (${timeStr})</span>${timeSpent}<br>距離：約 ${Math.round(distanceMeters)}m`;
+                        },
+                        (error) => {
+                            statusDiv.innerHTML = `[${customName}] <span style="color:red">已送達 (${timeStr})</span>`;
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+                } else {
+                    statusDiv.innerHTML = `[${customName}] <span style="color:red">已送達 (${timeStr})</span>`;
+                }
+            }
+        }
+
+        // 計算兩點距離 (公尺)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c;
+        }
+    </script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外送智慧打卡面板</title>
+    <style>
+        body {
+            background-color: #f4f4f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 340px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        h3 {
+            margin: 0 0 8px 0;
+            font-size: 15px;
+            color: #333;
+            text-align: center;
+        }
+        .btn-add {
+            width: 100%;
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-add:active { background-color: #1976D2; }
+        
+        .order-card {
+            background: #f9f9fb;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .order-input {
+            width: 70%;
+            padding: 4px 6px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333;
+        }
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-delete:hover { color: #F44336; }
+        
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+        .btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-start { background-color: #4CAF50; } /* 綠色：取餐 */
+        .btn-end { background-color: #F44336; }   /* 紅色：送達 */
+        .status-text {
+            font-size: 11px;
+            color: #555;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3>🛵 智慧夾單打卡面板</h3>
+        
+        <!-- 新增訂單按鈕 -->
+        <button class="btn-add" onclick="addOrderCard()">➕ 新增一筆訂單</button>
+
+        <!-- 訂單動態卡片區 -->
+        <div id="orders-container"></div>
+    </div>
+
+    <script>
+        let orderCount = 0;
+        let orderData = {};
+
+        // 頁面載入時自動產生第一張單
+        window.onload = function() {
+            addOrderCard();
+        };
+
+        // 動態新增訂單卡片
+        function addOrderCard() {
+            orderCount++;
+            const orderId = orderCount;
+            orderData[orderId] = { startTime: null, startLat: null, startLon: null };
+
+            const container = document.getElementById("orders-container");
+            const card = document.createElement("div");
+            card.className = "order-card";
+            card.id = `card-${orderId}`;
+            
+            card.innerHTML = `
+                <div class="order-header">
+                    <input type="text" class="order-input" id="name-${orderId}" value="訂單 ${orderId}">
+                    <button class="btn-delete" onclick="removeOrderCard(${orderId})">✖ 移除</button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-start" onclick="recordOrder(${orderId}, '取餐')">🟢 取餐</button>
+                    <button class="btn btn-end" onclick="recordOrder(${orderId}, '完成')">🔴 送達</button>
+                </div>
+                <div id="status-${orderId}" class="status-text">狀態：準備中</div>
+            `;
+            container.appendChild(card);
+        }
+
+        // 移除卡片
+        function removeOrderCard(orderId) {
+            const card = document.getElementById(`card-${orderId}`);
+            if (card) {
+                card.remove();
+                delete orderData[orderId];
+            }
+        }
+
+        // 記錄動作與 GPS 座標
+        function recordOrder(orderId, actionType) {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0]; // 取得 HH:MM:SS
+            const statusDiv = document.getElementById(`status-${orderId}`);
+            const customName = document.getElementById(`name-${orderId}`).value;
+
+            if (actionType === '取餐') {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            orderData[orderId].startTime = now;
+                            orderData[orderId].startLat = position.coords.latitude;
+                            orderData[orderId].startLon = position.coords.longitude;
+                            statusDiv.innerHTML = `[${customName}] <span style="color:green">已取餐 (${timeStr})</span>`;
+                        },
+                        (error) => {
+                            orderData[orderId].startTime = now;
+                            statusDiv.innerHTML = `[${customName}] <span style="color:green">已取餐 (${timeStr}) [無GPS]</span>`;
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+                } else {
+                    orderData[orderId].startTime = now;
+                    statusDiv.innerHTML = `[${customName}] <span style="color:green">已取餐 (${timeStr})</span>`;
+                }
+            } 
+            else if (actionType === '完成') {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const endLat = position.coords.latitude;
+                            const endLon = position.coords.longitude;
+                            
+                            let timeSpent = "";
+                            if (orderData[orderId].startTime) {
+                                let diffMinutes = Math.floor((now - orderData[orderId].startTime) / 60000);
+                                timeSpent = `，耗時 ${diffMinutes} 分`;
+                            }
+
+                            let distanceMeters = 0;
+                            if (orderData[orderId].startLat) {
+                                distanceMeters = calculateDistance(
+                                    orderData[orderId].startLat, orderData[orderId].startLon,
+                                    endLat, endLon
+                                );
+                            }
+
+                            statusDiv.innerHTML = `[${customName}] <span style="color:red">已送達 (${timeStr})</span>${timeSpent}<br>距離：約 ${Math.round(distanceMeters)}m`;
+                        },
+                        (error) => {
+                            statusDiv.innerHTML = `[${customName}] <span style="color:red">已送達 (${timeStr})</span>`;
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+                } else {
+                    statusDiv.innerHTML = `[${customName}] <span style="color:red">已送達 (${timeStr})</span>`;
+                }
+            }
+        }
+
+        // 計算兩點距離 (公尺)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c;
+        }
+    </script>
+
+</body>
+</html>
