@@ -391,7 +391,7 @@
 
     // 解決 LINE 內嵌瀏覽器跳轉與返回問題的專用函式
     function openAtomyWebsite() {
-        const atomyUrl = "https://tw.atomy.com/join/memberAgree?type=20&tabKey=hu5fp663lu1788286054589&back=N";
+        const atomyUrl = "https://tw.atomy.com/join/memberAgree?type=20&tabKey=hu5fp663lu1788286054589&back=N&openExternalBrowser=1";
         
         if (typeof liff !== 'undefined' && liff.isInClient()) {
             liff.openWindow({
