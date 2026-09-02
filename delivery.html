@@ -9,14 +9,13 @@
             background-color: #f4f4f9;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 4px;
+            padding: 2px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
         .container {
             width: 100%;
-            max-width: 320px;
         }
         .btn-add {
             width: 100%;
@@ -28,17 +27,18 @@
             font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
         .btn-add:active { background-color: #1976D2; }
         
+        /* 專為細長懸浮窗設計的卡片 */
         .order-card {
             background: white;
             border: 1px solid #ddd;
             border-radius: 6px;
             padding: 6px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .order-header {
@@ -66,13 +66,15 @@
         }
         .btn-delete:hover { color: #F44336; }
         
+        /* 改為垂直上下堆疊，適合極窄側邊欄 */
         .btn-group {
             display: flex;
+            flex-direction: column;
             gap: 4px;
         }
         .btn {
-            flex: 1;
-            padding: 8px 2px;
+            width: 100%;
+            padding: 8px;
             border: none;
             border-radius: 4px;
             font-size: 12px;
@@ -88,6 +90,7 @@
             font-size: 10px;
             color: #555;
             margin-top: 4px;
+            text-align: center;
         }
     </style>
 </head>
@@ -95,7 +98,7 @@
 
     <div class="container">
         <!-- 點擊新增的瞬間即完成「接單」打卡 -->
-        <button class="btn-add" onclick="addOrderCard()">➕ 新增訂單 (立即記錄接單)</button>
+        <button class="btn-add" onclick="addOrderCard()">➕ 新增訂單 (記錄接單)</button>
         <div id="orders-container"></div>
     </div>
 
@@ -107,7 +110,6 @@
             addOrderCard();
         };
 
-        // 新增訂單
         function addOrderCard() {
             orderCount++;
             const orderId = orderCount;
@@ -138,12 +140,9 @@
                 <div id="status-${orderId}" class="status-text">已接單: ${timeStr}</div>
             `;
             container.prepend(card);
-
-            // 同步抓取接單 GPS
             getGPSAndSave(orderId, '接單', timeStr);
         }
 
-        // 移除卡片
         function removeOrderCard(orderId) {
             const card = document.getElementById(`card-${orderId}`);
             if (card) {
@@ -152,7 +151,6 @@
             }
         }
 
-        // 記錄動作
         function recordOrder(orderId, actionType) {
             const now = new Date();
             const timeStr = now.toTimeString().split(' ')[0];
@@ -162,32 +160,25 @@
                 updateStatusText(orderId, `🟢 取餐: ${timeStr}`);
             } 
             else if (actionType === '送達') {
-                // 核心邏輯：一按送達，瞬間完成紀錄，並在 0.8 秒後自動從畫面抹除消失！
-                updateStatusText(orderId, `<span style="color:red; font-weight:bold;">🔴 已完成送達！資料已暫存</span>`);
-                
-                // 這裡未來可以串接寫入後端或雲端的程式碼
+                updateStatusText(orderId, `<span style="color:red; font-weight:bold;">🔴 已完成！暫存中</span>`);
                 setTimeout(() => {
                     removeOrderCard(orderId);
-                }, 800); // 0.8秒後自動消失，給自己一個視覺回饋
+                }, 800);
             }
         }
 
-        // 更新狀態文字
         function updateStatusText(orderId, text) {
             const statusDiv = document.getElementById(`status-${orderId}`);
             if (statusDiv) statusDiv.innerHTML = text;
         }
 
-        // 取得 GPS 座標
         function getGPSAndSave(orderId, actionType, timeStr) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
                         if (actionType === '接單') {
-                            orderData[orderId].startLat = lat;
-                            orderData[orderId].startLon = lon;
+                            orderData[orderId].startLat = position.coords.latitude;
+                            orderData[orderId].startLon = position.coords.longitude;
                         }
                     },
                     (error) => { console.log("GPS 取得失敗"); },
