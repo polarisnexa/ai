@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>外送極速記帳面板</title>
+    <title>外送多單智慧面板</title>
     <style>
         body {
             background-color: #121212;
@@ -28,15 +28,22 @@
         }
         .action-btn {
             width: 100%; padding: 12px; border: none; border-radius: 8px;
-            font-size: 15px; font-weight: bold; color: white; cursor: pointer; text-align: center; margin-bottom: 5px;
+            font-size: 15px; font-weight: bold; color: white; cursor: pointer; text-align: center; margin-bottom: 6px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         .btn-accept { background-color: #0288D1; }
-        .btn-end    { background-color: #C62828; }
+        .btn-order-item {
+            background: #C62828; border: none; border-radius: 20px; color: white;
+            padding: 10px 14px; font-size: 13px; font-weight: bold; width: 100%;
+            margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .btn-order-item span { background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px; }
         .status-box {
             background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
             padding: 8px; text-align: center; font-size: 12px; color: #DDD; margin-bottom: 5px;
         }
+        .section-title { font-size: 12px; color: #888; margin: 8px 0 4px 2px; }
     </style>
 </head>
 <body>
@@ -55,8 +62,8 @@
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwy2KXhb7m0SbU6WwEdRuiL3QanBHFtL-zVVxruj3-QDJfmjmcdRrRXwo4eH4j8GgsiJA/exec'; 
 
-        let currentOrder = {};
-        let acceptTimestamp = null;
+        // 儲存目前進行中的所有訂單物件陣列
+        let activeOrders = JSON.parse(localStorage.getItem('active_orders') || '[]');
 
         window.onload = function() {
             checkDriverName();
@@ -74,14 +81,14 @@
             } else {
                 document.getElementById('driver-display').innerText = `🛵 ${driverName}`;
                 updateCountHint();
-                resetPanel();
+                renderMainPanel();
             }
         }
 
         function saveDriverName() {
             const nameInput = document.getElementById('setup-name').value.trim();
             if (!nameInput || nameInput.length < 6) {
-                alert('請輸入完整的姓名與手機號碼，以避免重複！');
+                alert('請輸入完整的姓名與手機號碼！');
                 return;
             }
             localStorage.setItem('delivery_driver_name', nameInput);
@@ -112,86 +119,120 @@
             if (hintElem) hintElem.innerText = `今日: ${count}件`;
         }
 
-        function showInputForm() {
+        // 渲染主畫面：包含「接新單」按鈕與下方進行中的「小圓圈訂單清單」
+        function renderMainPanel() {
+            updateCountHint();
+            
+            let html = `
+                <button class="action-btn btn-accept" onclick="addNewOrder()">➕ 接新單 (產生待辦圓圈)</button>
+            `;
+
+            if (activeOrders.length > 0) {
+                html += `<div class="section-title">進行中的訂單 (${activeOrders.length})：</div>`;
+                activeOrders.forEach((order, index) => {
+                    html += `
+                        <button class="btn-order-item" onclick="completeOrder(${index})">
+                            <span>🔴 ${order.orderNum}</span>
+                            <span>接單: ${order.acceptTime} 點擊送達 ➔</span>
+                        </button>
+                    `;
+                });
+            } else {目前沒有進行中的訂單}
+
+            document.getElementById('panel-body').innerHTML = html;
+        }
+
+        // 點擊接新單：立刻在背景建立一筆新單並加到清單中
+        function addNewOrder() {
             const orderNum = incrementOrderNumber();
             updateCountHint();
             
-            acceptTimestamp = new Date();
+            const acceptTimestamp = new Date();
             const timeStr = acceptTimestamp.toTimeString().split(' ')[0].substring(0, 5);
 
-            currentOrder = {
+            const newOrder = {
+                id: Date.now(),
                 driverName: localStorage.getItem('delivery_driver_name') || '未知',
                 orderNum: `單 ${orderNum}`,
-                acceptTime: timeStr
+                acceptTime: timeStr,
+                acceptTimestamp: acceptTimestamp.getTime()
             };
 
-            document.getElementById('panel-body').innerHTML = `
-                <div class="status-box" style="color: #4FC3F7; font-weight: bold;">單 ${orderNum} 進行中 (${timeStr})</div>
-                <input type="text" id="platform-num" class="input-field" placeholder="平台單號 / 店家名稱">
-                <input type="text" id="cust-name" class="input-field" placeholder="客戶名稱">
-                <input type="text" id="cust-address" class="input-field" placeholder="外送地址">
-                <input type="text" id="item-details" class="input-field" placeholder="餐點明細/內容">
-                <input type="text" id="cust-notes" class="input-field" placeholder="配送備註 (例如:送上樓)">
-                <input type="text" id="order-amount" class="input-field" placeholder="訂單金額 (選填)">
-                <button class="action-btn btn-end" onclick="recordDelivery()">🔴 點擊送達 (自動存檔)</button>
-            `;
+            activeOrders.push(newOrder);
+            localStorage.setItem('active_orders', JSON.stringify(activeOrders));
+            renderMainPanel();
         }
 
-        function recordDelivery() {
+        // 點擊某個進行中的小圓圈：代表該單送達，準備回報
+        function completeOrder(index) {
+            let order = activeOrders[index];
+            
+            // 彈出簡易視窗讓使用者補填平台單號或直接送出
+            let platformNum = prompt(`回報 [${order.orderNum}] 送達\n請輸入平台單號/店家名稱 (可略過):`, '');
+            if (platformNum === null) return; // 按取消則返回
+
             const endTimestamp = new Date();
             const endTimeStr = endTimestamp.toTimeString().split(' ')[0].substring(0, 5);
             
             let totalMins = '';
-            if (acceptTimestamp) {
-                let diffMs = endTimestamp - acceptTimestamp;
+            if (order.acceptTimestamp) {
+                let diffMs = endTimestamp.getTime() - order.acceptTimestamp;
                 totalMins = Math.round(diffMs / 60000);
             }
 
-            currentOrder.endTime = endTimeStr;
-            currentOrder.totalMinutes = totalMins;
-            currentOrder.platformOrderNum = document.getElementById('platform-num').value;
-            currentOrder.customerName = document.getElementById('cust-name').value;
-            currentOrder.address = document.getElementById('cust-address').value;
-            currentOrder.itemDetails = document.getElementById('item-details').value;
-            currentOrder.notes = document.getElementById('cust-notes').value;
-            currentOrder.orderAmount = document.getElementById('order-amount').value;
-            currentOrder.manualBonus = ''; 
-            currentOrder.paymentMethod = '現金/線上'; 
-            currentOrder.gpsLat = '';
-            currentOrder.gpsLng = '';
-            currentOrder.screenshot1 = '';
-            currentOrder.screenshot2 = '';
-            currentOrder.screenshot3 = '';
-            currentOrder.exceptionReport = '';
+            const payload = {
+                driverName: order.driverName,
+                orderNum: order.orderNum,
+                platformOrderNum: platformNum || '快速單',
+                acceptTime: order.acceptTime,
+                endTime: endTimeStr,
+                totalMinutes: totalMins,
+                customerName: '',
+                address: '',
+                itemDetails: '',
+                notes: '多單動態回報',
+                orderAmount: '',
+                manualBonus: '',
+                paymentMethod: '現金/線上',
+                gpsLat: '',
+                gpsLng: '',
+                screenshot1: '',
+                screenshot2: '',
+                screenshot3: '',
+                exceptionReport: ''
+            };
 
+            // 從進行中清單移除該單
+            activeOrders.splice(index, 1);
+            localStorage.setItem('active_orders', JSON.stringify(activeOrders));
+
+            // 顯示上傳中提示
             document.getElementById('panel-body').innerHTML = `
                 <div class="status-box" style="color: #FF5252; font-weight: bold;">
-                    🔴 ${currentOrder.orderNum} 上傳中...
+                    🔴 ${order.orderNum} 數據上傳中...
                 </div>
             `;
 
+            // 傳送資料到 Google Apps Script
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(currentOrder)
-            }).then(() => finishOrderUI()).catch(() => finishOrderUI());
+                body: JSON.stringify(payload)
+            }).then(() => {
+                showSuccessAndRefresh();
+            }).catch(() => {
+                showSuccessAndRefresh();
+            });
         }
 
-        function finishOrderUI() {
+        function showSuccessAndRefresh() {
             document.getElementById('panel-body').innerHTML = `
                 <div class="status-box" style="color: #81C784; font-weight: bold;">
-                    ✅ 已同步至雲端！
+                    ✅ 訂單已同步至試算表！
                 </div>
             `;
-            setTimeout(() => { resetPanel(); }, 1000);
-        }
-
-        function resetPanel() {
-            updateCountHint();
-            document.getElementById('panel-body').innerHTML = `
-                <button class="action-btn btn-accept" onclick="showInputForm()">➕ 接新單 (記錄時間)</button>
-            `;
+            setTimeout(() => { renderMainPanel(); }, 800);
         }
     </script>
 </body>
