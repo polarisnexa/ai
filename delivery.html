@@ -53,11 +53,10 @@
     </div>
 
     <script>
-        // 已自動帶入你的 Google Apps Script 網址
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwy2KXhb7m0SbU6WwEdRuiL3QanBHFtL-zVVxruj3-QDJfmjmcdRrRXwo4eH4j8GgsiJA/exec'; 
 
         let currentOrder = {};
-        let acceptTimestamp = null; // 用來計算總耗時
+        let acceptTimestamp = null;
 
         window.onload = function() {
             checkDriverName();
@@ -68,8 +67,8 @@
             if (!driverName || driverName.trim() === '') {
                 document.getElementById('driver-display').innerText = '首次設定';
                 document.getElementById('panel-body').innerHTML = `
-                    <div class="status-box" style="color: #FFB74D;">請輸入您的名字/代號以便統計回報：</div>
-                    <input type="text" id="setup-name" class="input-field" placeholder="例如: 小明 / 07號">
+                    <div class="status-box" style="color: #FFB74D;">首次使用請綁定（僅需一次）：<br><b>請輸入 姓名 + 手機號碼</b></div>
+                    <input type="text" id="setup-name" class="input-field" placeholder="例如: 王小明0912345678">
                     <button class="action-btn btn-accept" onclick="saveDriverName()">💾 確定並開始使用</button>
                 `;
             } else {
@@ -81,8 +80,8 @@
 
         function saveDriverName() {
             const nameInput = document.getElementById('setup-name').value.trim();
-            if (!nameInput) {
-                alert('請輸入有效名字！');
+            if (!nameInput || nameInput.length < 6) {
+                alert('請輸入完整的姓名與手機號碼，以避免重複！');
                 return;
             }
             localStorage.setItem('delivery_driver_name', nameInput);
@@ -117,7 +116,7 @@
             const orderNum = incrementOrderNumber();
             updateCountHint();
             
-            acceptTimestamp = new Date(); // 記錄接單當下時間
+            acceptTimestamp = new Date();
             const timeStr = acceptTimestamp.toTimeString().split(' ')[0].substring(0, 5);
 
             currentOrder = {
@@ -142,11 +141,10 @@
             const endTimestamp = new Date();
             const endTimeStr = endTimestamp.toTimeString().split(' ')[0].substring(0, 5);
             
-            // 計算總耗時 (分鐘)
             let totalMins = '';
             if (acceptTimestamp) {
                 let diffMs = endTimestamp - acceptTimestamp;
-                totalMins = Math.round(diffMs / 60000); // 毫秒轉分鐘
+                totalMins = Math.round(diffMs / 60000);
             }
 
             currentOrder.endTime = endTimeStr;
