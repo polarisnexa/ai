@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>外送極速面板</title>
+    <title>外送極速記帳面板</title>
     <style>
         body {
-            background-color: #121212; /* 深色護眼背景 */
+            background-color: #121212;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 6px;
@@ -15,105 +15,84 @@
             flex-direction: column;
             align-items: center;
         }
-
-        .container {
-            width: 100%;
-            max-width: 280px;
-        }
-
-        /* 頂部資訊列 */
+        .container { width: 100%; max-width: 280px; }
         .top-bar {
-            background: #1E1E1E;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 8px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
+            padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
         }
-
-        .app-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #00BFA5;
+        .app-title { font-size: 14px; font-weight: bold; color: #00BFA5; }
+        .count-badge { font-size: 13px; color: #81C784; background: #252525; padding: 2px 8px; border-radius: 12px; border: 1px solid #444; }
+        .input-field {
+            width: 100%; padding: 7px; margin-bottom: 5px; background: #222;
+            border: 1px solid #444; border-radius: 6px; color: white; font-size: 13px; box-sizing: border-box;
         }
-
-        .count-badge {
-            font-size: 13px;
-            color: #81C784;
-            background: #252525;
-            padding: 2px 8px;
-            border-radius: 12px;
-            border: 1px solid #444;
-        }
-
-        /* 動作按鈕：超大、清晰好點 */
         .action-btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px; /* 字體放大，清晰好辨識 */
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            text-align: center;
-            margin-bottom: 6px;
+            width: 100%; padding: 12px; border: none; border-radius: 8px;
+            font-size: 15px; font-weight: bold; color: white; cursor: pointer; text-align: center; margin-bottom: 5px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
-
-        .btn-accept { background-color: #0288D1; } /* 藍：接新單 */
-        .btn-start  { background-color: #2E7D32; } /* 綠：點擊取餐 */
-        .btn-end    { background-color: #C62828; } /* 紅：點擊送達 */
-        
-        .action-btn:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
+        .btn-accept { background-color: #0288D1; }
+        .btn-end    { background-color: #C62828; }
         .status-box {
-            background: #1E1E1E;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            font-size: 13px;
-            color: #DDD;
-            margin-top: 4px;
+            background: #1E1E1E; border: 1px solid #333; border-radius: 8px;
+            padding: 8px; text-align: center; font-size: 12px; color: #DDD; margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="main-container">
-        <!-- 頂部標題與今日累計 -->
+    <div class="container">
         <div class="top-bar">
-            <span class="app-title">🛵 外送快打</span>
+            <span class="app-title" id="driver-display">🛵 載入中...</span>
             <span class="count-badge" id="today-count-hint">今日: 0件</span>
         </div>
 
-        <!-- 動態面板區域 -->
         <div id="panel-body">
-            <button class="action-btn btn-accept" onclick="addNewOrder()">➕ 接新單 (記錄時間)</button>
+            <!-- 動態介面 -->
         </div>
     </div>
 
     <script>
-        let currentOrderId = null;
-        let orderData = {};
+        // 已自動帶入你的 Google Apps Script 網址
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwy2KXhb7m0SbU6WwEdRuiL3QanBHFtL-zVVxruj3-QDJfmjmcdRrRXwo4eH4j8GgsiJA/exec'; 
+
+        let currentOrder = {};
+        let acceptTimestamp = null; // 用來計算總耗時
 
         window.onload = function() {
-            checkAndResetDailyCount();
-            updateCountHint();
+            checkDriverName();
         };
+
+        function checkDriverName() {
+            let driverName = localStorage.getItem('delivery_driver_name');
+            if (!driverName || driverName.trim() === '') {
+                document.getElementById('driver-display').innerText = '首次設定';
+                document.getElementById('panel-body').innerHTML = `
+                    <div class="status-box" style="color: #FFB74D;">請輸入您的名字/代號以便統計回報：</div>
+                    <input type="text" id="setup-name" class="input-field" placeholder="例如: 小明 / 07號">
+                    <button class="action-btn btn-accept" onclick="saveDriverName()">💾 確定並開始使用</button>
+                `;
+            } else {
+                document.getElementById('driver-display').innerText = `🛵 ${driverName}`;
+                updateCountHint();
+                resetPanel();
+            }
+        }
+
+        function saveDriverName() {
+            const nameInput = document.getElementById('setup-name').value.trim();
+            if (!nameInput) {
+                alert('請輸入有效名字！');
+                return;
+            }
+            localStorage.setItem('delivery_driver_name', nameInput);
+            location.reload();
+        }
 
         function getTodayOrderNumber() {
             const todayStr = new Date().toDateString();
             let savedDate = localStorage.getItem('delivery_date');
             let currentCount = parseInt(localStorage.getItem('delivery_count') || '0');
-
             if (savedDate !== todayStr) {
                 localStorage.setItem('delivery_date', todayStr);
                 localStorage.setItem('delivery_count', '0');
@@ -128,101 +107,94 @@
             return count;
         }
 
-        function checkAndResetDailyCount() {
-            getTodayOrderNumber();
-        }
-
         function updateCountHint() {
             const count = getTodayOrderNumber();
             const hintElem = document.getElementById('today-count-hint');
-            if (hintElem) {
-                hintElem.innerText = `今日: ${count}件`;
-            }
+            if (hintElem) hintElem.innerText = `今日: ${count}件`;
         }
 
-        // 新增/接單
-        function addNewOrder() {
+        function showInputForm() {
             const orderNum = incrementOrderNumber();
             updateCountHint();
             
-            const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0].substring(0, 5); // 顯示 HH:MM
-            currentOrderId = 'order_' + Date.now();
+            acceptTimestamp = new Date(); // 記錄接單當下時間
+            const timeStr = acceptTimestamp.toTimeString().split(' ')[0].substring(0, 5);
 
-            orderData[currentOrderId] = {
-                orderNum: orderNum,
-                acceptTime: now,
-                startTime: null,
-                startLat: null,
-                startLon: null
+            currentOrder = {
+                driverName: localStorage.getItem('delivery_driver_name') || '未知',
+                orderNum: `單 ${orderNum}`,
+                acceptTime: timeStr
             };
 
-            getGPS(currentOrderId, '接單');
-
-            // 轉換為取餐/送達大按鈕
             document.getElementById('panel-body').innerHTML = `
-                <div class="status-box" style="margin-bottom: 6px; color: #4FC3F7; font-weight: bold;">
-                    單 ${orderNum} 進行中 (${timeStr} 接單)
-                </div>
-                <button class="action-btn btn-start" onclick="recordAction('取餐')">🟢 點擊取餐</button>
-                <button class="action-btn btn-end" onclick="recordAction('送達')">🔴 點擊送達</button>
+                <div class="status-box" style="color: #4FC3F7; font-weight: bold;">單 ${orderNum} 進行中 (${timeStr})</div>
+                <input type="text" id="platform-num" class="input-field" placeholder="平台單號 / 店家名稱">
+                <input type="text" id="cust-name" class="input-field" placeholder="客戶名稱">
+                <input type="text" id="cust-address" class="input-field" placeholder="外送地址">
+                <input type="text" id="item-details" class="input-field" placeholder="餐點明細/內容">
+                <input type="text" id="cust-notes" class="input-field" placeholder="配送備註 (例如:送上樓)">
+                <input type="text" id="order-amount" class="input-field" placeholder="訂單金額 (選填)">
+                <button class="action-btn btn-end" onclick="recordDelivery()">🔴 點擊送達 (自動存檔)</button>
             `;
         }
 
-        // 記錄動作 (取餐 / 送達)
-        function recordAction(actionType) {
-            const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
-            const orderNum = localStorage.getItem('delivery_count');
-
-            if (actionType === '取餐') {
-                orderData[currentOrderId].startTime = now;
-                document.getElementById('panel-body').innerHTML = `
-                    <div class="status-box" style="margin-bottom: 6px; color: #81C784; font-weight: bold;">
-                        單 ${orderNum} 已取餐 (${timeStr})
-                    </div>
-                    <button class="action-btn btn-start" style="opacity: 0.5;" disabled>🟢 已取餐</button>
-                    <button class="action-btn btn-end" onclick="recordAction('送達')">🔴 點擊送達</button>
-                `;
-            } 
-            else if (actionType === '送達') {
-                document.getElementById('panel-body').innerHTML = `
-                    <div class="status-box" style="color: #FF5252; font-weight: bold;">
-                        🔴 單 ${orderNum} 已完成！
-                    </div>
-                `;
-                
-                // 1秒後自動恢復成「接新單」按鈕，準備接下一單
-                setTimeout(() => {
-                    resetPanel();
-                }, 1000);
+        function recordDelivery() {
+            const endTimestamp = new Date();
+            const endTimeStr = endTimestamp.toTimeString().split(' ')[0].substring(0, 5);
+            
+            // 計算總耗時 (分鐘)
+            let totalMins = '';
+            if (acceptTimestamp) {
+                let diffMs = endTimestamp - acceptTimestamp;
+                totalMins = Math.round(diffMs / 60000); // 毫秒轉分鐘
             }
+
+            currentOrder.endTime = endTimeStr;
+            currentOrder.totalMinutes = totalMins;
+            currentOrder.platformOrderNum = document.getElementById('platform-num').value;
+            currentOrder.customerName = document.getElementById('cust-name').value;
+            currentOrder.address = document.getElementById('cust-address').value;
+            currentOrder.itemDetails = document.getElementById('item-details').value;
+            currentOrder.notes = document.getElementById('cust-notes').value;
+            currentOrder.orderAmount = document.getElementById('order-amount').value;
+            currentOrder.manualBonus = ''; 
+            currentOrder.paymentMethod = '現金/線上'; 
+            currentOrder.gpsLat = '';
+            currentOrder.gpsLng = '';
+            currentOrder.screenshot1 = '';
+            currentOrder.screenshot2 = '';
+            currentOrder.screenshot3 = '';
+            currentOrder.exceptionReport = '';
+
+            document.getElementById('panel-body').innerHTML = `
+                <div class="status-box" style="color: #FF5252; font-weight: bold;">
+                    🔴 ${currentOrder.orderNum} 上傳中...
+                </div>
+            `;
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentOrder)
+            }).then(() => finishOrderUI()).catch(() => finishOrderUI());
         }
 
-        // 重置面板回到接單狀態
+        function finishOrderUI() {
+            document.getElementById('panel-body').innerHTML = `
+                <div class="status-box" style="color: #81C784; font-weight: bold;">
+                    ✅ 已同步至雲端！
+                </div>
+            `;
+            setTimeout(() => { resetPanel(); }, 1000);
+        }
+
         function resetPanel() {
-            currentOrderId = null;
             updateCountHint();
             document.getElementById('panel-body').innerHTML = `
-                <button class="action-btn btn-accept" onclick="addNewOrder()">➕ 接新單 (記錄時間)</button>
+                <button class="action-btn btn-accept" onclick="showInputForm()">➕ 接新單 (記錄時間)</button>
             `;
         }
-
-        function getGPS(orderId, actionType) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        if (actionType === '接單' && orderData[orderId]) {
-                            orderData[orderId].startLat = position.coords.latitude;
-                            orderData[orderId].startLon = position.coords.longitude;
-                        }
-                    },
-                    (error) => { console.log("GPS 取得失敗"); },
-                    { enableHighAccuracy: true, timeout: 5000 }
-                );
-            }
-        }
     </script>
-
 </body>
 </html>
