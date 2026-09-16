@@ -18,8 +18,7 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            /* 底部保留空間，避免內容被固定按鈕遮擋 */
-            padding: 10px 10px 80px 10px;
+            padding: 10px 10px 90px 10px;
             -webkit-text-size-adjust: 100%;
         }
         .container {
@@ -28,7 +27,7 @@
         }
         .section-box {
             background: #ffffff;
-            padding: 16px;
+            padding: 18px;
             border-radius: 14px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             margin-bottom: 14px;
@@ -38,7 +37,7 @@
             background: linear-gradient(135deg, #06C755 0%, #038438 100%);
             color: #ffffff;
             text-align: center;
-            padding: 24px 16px;
+            padding: 28px 16px;
             border-radius: 14px;
             margin-bottom: 14px;
             box-shadow: 0 4px 15px rgba(6,199,85,0.2);
@@ -46,7 +45,7 @@
         .hero-title {
             font-size: 22px;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             line-height: 1.4;
         }
         .hero-subtitle {
@@ -75,7 +74,7 @@
         .highlight-item {
             background: #f8fafc;
             border-left: 4px solid var(--primary);
-            padding: 10px 12px;
+            padding: 12px;
             border-radius: 0 8px 8px 0;
             font-size: 14px;
             line-height: 1.5;
@@ -83,7 +82,7 @@
         .highlight-item strong {
             color: #1e293b;
             display: block;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
         /* 小幫手卡片 */
         .helper-card {
@@ -137,15 +136,21 @@
             box-sizing: border-box;
             z-index: 999;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
         }
         .sticky-footer .action-btn {
             max-width: 600px;
             margin: 0;
-            padding: 14px 0;
-            font-size: 16px;
+            padding: 12px 0;
+            font-size: 15px;
             border-radius: 30px;
             letter-spacing: 0.5px;
+        }
+        .ref-badge {
+            font-size: 12px;
+            color: #666;
         }
         /* 教育中心卡片 */
         .center-card {
@@ -232,64 +237,25 @@
             color: #666;
             margin-top: 4px;
         }
+        .promo-img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
 
+    <!-- 區塊一：首屏吸睛區 -->
     <div class="hero-banner">
         <div class="hero-title">🚀 告別傳統直銷困境<br>迎向 2026 AI 智慧新零售團隊</div>
         <div class="hero-subtitle">不用求人說服、不怕大象腿、拒絕強迫消費。<br>讓 AI 幫你處理 80% 繁雜事，輕鬆打造被動收入！</div>
     </div>
 
-    <div class="section-box" style="border-top: 4px solid var(--primary);">
-        <div class="section-title">🛠️ 新人註冊填寫小幫手（建議註冊前先複製）</div>
-        <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 12px;">
-            請直接點擊下方「複製」按鈕對照使用：（如需要複製安置編號或回小幫手請切換視窗來回操作即可）
-        </div>
-
-        <div class="helper-card">
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">1️⃣ 安置人資訊（必填）</div>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
-                <span>編號：<strong>12345678</strong> (王小明)</span>
-                <button class="action-btn btn-copy" onclick="copyText('12345678')">複製編號</button>
-            </div>
-        </div>
-
-        <div class="helper-card">
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">2️⃣ 密碼設定（團隊統一）</div>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
-                <span>密碼：<strong style="color: #e11d48;">Aa123456$</strong></span>
-                <button class="action-btn btn-copy" onclick="copyText('Aa123456$')">複製密碼</button>
-            </div>
-        </div>
-
-        <div class="helper-card" style="font-size: 13px; color: var(--text-sub);">
-            <div style="font-weight: bold; margin-bottom: 4px; color: #333;">3️⃣ 必備檔案上傳提醒：</div>
-            <p style="margin: 3px 0;">• <b>身分證</b>：正反面拍照需清晰、無反光、四邊完整。</p>
-            <p style="margin: 3px 0;">• <b>銀行存摺</b>：需拍「帳號內頁」（有戶名與帳號），非封面。</p>
-        </div>
-    </div>
-
-    <div class="section-box">
-        <div class="section-title">📍 教育中心快速查詢（第5步填寫用）</div>
-        <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 10px;">
-            註冊時需要填寫離您最近的教育中心，請點選下方地區快速尋找：
-        </div>
-        <div id="tags-wrapper"></div>
-    </div>
-
-    <div class="section-box">
-        <div class="section-title">
-            <span>教育中心列表</span>
-            <span id="result-count" style="font-weight: normal; font-size: 13px; color: #6c757d;">請點選地區標籤</span>
-        </div>
-        <div id="center-list">
-            <div class="empty-tip">請點擊上方地區標籤以檢視教育中心。</div>
-        </div>
-    </div>
-
+    <!-- 區塊二：痛點共鳴與系統優勢 -->
     <div class="section-box">
         <div class="section-title">✨ AI 智慧系統與團隊賦能</div>
         <div class="highlight-grid">
@@ -316,28 +282,81 @@
         </div>
     </div>
 
+    <!-- 區塊三：官方紅利與圖片展示 -->
     <div class="section-box">
         <div class="section-title">💎 2026 艾多美官方最新紅利</div>
         <div class="highlight-grid">
             <div class="highlight-item">
-                <strong>🌱 6. 全面升級線上電子作業</strong>
+                <strong>🌱 全面升級線上電子作業</strong>
                 順應時代潮流全面廢除紙本回歸環保，註冊與行政全面數位化。
             </div>
             <div class="highlight-item">
-                <strong>🎁 7 & 8. 專屬新人好禮與生日專屬券</strong>
+                <strong>🎁 專屬新人好禮與生日專屬券</strong>
                 官方祭出實質入會禮與生日優惠券，第一時間感受品牌誠意。
             </div>
             <div class="highlight-item">
-                <strong>💰 9. 自身 PV 自動納入小邊</strong>
+                <strong>💰 自身 PV 自動納入小邊</strong>
                 優化個人積分制度，積分自動化對應變現金，獎金更具優勢。
             </div>
             <div class="highlight-item">
-                <strong>📦 10. 超商取貨便民服務（滿千免運）</strong>
+                <strong>📦 超商取貨便民服務（滿千免運）</strong>
                 大幅降低網購門檻，新增超商取貨與超低免運額度，推廣零負擔。
             </div>
         </div>
+        <!-- 導入指定圖片 -->
+        <img src="https://raw.githubusercontent.com/polarisnexa/ai/main/atomy/AtomyNewMemberGift.jpg" alt="艾多美新人專屬好禮" class="promo-img">
     </div>
 
+    <!-- 區塊四：註冊填寫小幫手（動態帶入網址參數） -->
+    <div class="section-box" style="border-top: 4px solid var(--primary);">
+        <div class="section-title">🛠️ 新人註冊填寫小幫手（建議註冊前先複製）</div>
+        <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 12px;">
+            請直接點擊下方「複製」按鈕對照使用：
+        </div>
+
+        <div class="helper-card">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">1️⃣ 安置人資訊（必填）</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                <span>推薦/安置編號：<strong id="ref-display-text" style="color: var(--primary);">載入中...</strong></span>
+                <button class="action-btn btn-copy" onclick="copyRefCode()">複製編號</button>
+            </div>
+        </div>
+
+        <div class="helper-card">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">2️⃣ 密碼設定（團隊統一）</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                <span>密碼：<strong style="color: #e11d48;">Aa123456$</strong></span>
+                <button class="action-btn btn-copy" onclick="copyText('Aa123456$')">複製密碼</button>
+            </div>
+        </div>
+
+        <div class="helper-card" style="font-size: 13px; color: var(--text-sub);">
+            <div style="font-weight: bold; margin-bottom: 4px; color: #333;">3️⃣ 必備檔案上傳提醒：</div>
+            <p style="margin: 3px 0;">• <b>身分證</b>：正反面拍照需清晰、無反光、四邊完整。</p>
+            <p style="margin: 3px 0;">• <b>銀行存摺</b>：需拍「帳號內頁」（有戶名與帳號），非封面。</p>
+        </div>
+    </div>
+
+    <!-- 區塊五：教育中心查詢 -->
+    <div class="section-box">
+        <div class="section-title">📍 教育中心快速查詢（第5步填寫用）</div>
+        <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 10px;">
+            註冊時需要填寫離您最近的教育中心，請點選下方地區快速尋找：
+        </div>
+        <div id="tags-wrapper"></div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-title">
+            <span>教育中心列表</span>
+            <span id="result-count" style="font-weight: normal; font-size: 13px; color: #6c757d;">請點選地區標籤</span>
+        </div>
+        <div id="center-list">
+            <div class="empty-tip">請點擊上方地區標籤以檢視教育中心。</div>
+        </div>
+    </div>
+
+    <!-- 區塊六：註冊完成回報表單 -->
     <div class="section-box" style="border-top: 4px solid var(--primary);">
         <div class="section-title">🔒 註冊完成與解鎖 AI 系統</div>
         <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 12px;">
@@ -380,7 +399,9 @@
 
 </div>
 
+<!-- 底部固定懸浮列 -->
 <div class="sticky-footer">
+    <div class="ref-badge" id="footer-ref-text">目前推薦人代號：載入中...</div>
     <button type="button" onclick="openAtomyWebsite()" class="action-btn btn-primary-custom">
         🌐 前往艾多美台灣官方專屬註冊頁面 ➔
     </button>
@@ -389,14 +410,37 @@
 <script>
     const LIFF_ID = "2011043455-z9yvj9dV";
 
-    // 解決 LINE 內嵌瀏覽器跳轉與返回問題的專用函式
+    // 解析網址中的 ref 參數（預設為 AT4051）
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    let currentRef = getQueryParam('ref') || 'AT4051';
+
+    // 初始化頁面動態資訊
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById('ref-display-text').innerText = currentRef;
+        document.getElementById('footer-ref-text').innerText = `目前由【${currentRef}】誠摯邀請與引導`;
+        
+        initQuickTags();
+        if (typeof liff !== 'undefined') {
+            liff.init({ liffId: LIFF_ID }).catch(err => console.error("LIFF 初始化失敗:", err));
+        }
+    });
+
+    function copyRefCode() {
+        copyText(currentRef);
+    }
+
+    // 解決 LINE 內嵌瀏覽器跳轉問題
     function openAtomyWebsite() {
         const atomyUrl = "https://tw.atomy.com/join/memberAgree?type=20&tabKey=hu5fp663lu1788286054589&back=N&openExternalBrowser=1";
         
         if (typeof liff !== 'undefined' && liff.isInClient()) {
             liff.openWindow({
                 url: atomyUrl,
-                external: true // 強制用手機外部瀏覽器（Safari/Chrome）開啟，不佔用 LINE 視窗
+                external: true
             });
         } else {
             window.open(atomyUrl, '_blank');
@@ -595,15 +639,10 @@
             alert('提醒：艾多美會員編號通常為 8 碼數字，請確認您的編號格式是否正確。');
         }
 
-        alert(`驗證資料已成功送出！\n\n👤 姓名：${realName}\n📞 電話：${phone}\n💬 LINE ID：${lineId}\n🆔 會員編號：${atomyId}\n\n我們將盡快為您審核，並透過 LINE 發送 AI 機器人解鎖連結！`);
+        alert(`驗證資料已成功送出！\n\n👤 姓名：${realName}\n📞 電話：${phone}\n💬 LINE ID：${lineId}\n🆔 會員編號：${atomyId}\n推薦人代號：${currentRef}\n\n我們將盡快為您審核，並透過 LINE 發送 AI 機器人解鎖連結！`);
         
         document.getElementById('verify-form').reset();
     }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        initQuickTags();
-        liff.init({ liffId: LIFF_ID }).catch(err => console.error("LIFF 初始化失敗:", err));
-    });
 </script>
 </body>
 </html>
