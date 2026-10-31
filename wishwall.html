@@ -1,481 +1,294 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="scroll-smooth">
+<html lang="zh-TW" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PolarisNexa | 啟動許願牆 Let's Fulfill Your Wishes Together</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Inter & Noto Sans TC -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            dark: '#0B0F19',
-                            card: '#161F33',
-                            border: '#2A3654',
-                            cyan: '#00F2FE',
-                            blue: '#4FACFE',
-                            purple: '#7F00FF',
-                            gold: '#FFD700',
-                            goldGlow: '#FFA500'
-                        }
-                    },
-                    boxShadow: {
-                        'glow-cyan': '0 0 25px -5px rgba(0, 242, 254, 0.4)',
-                        'glow-gold': '0 0 25px -5px rgba(255, 215, 0, 0.4)',
-                        'glow-purple': '0 0 30px -5px rgba(127, 0, 255, 0.4)',
-                    }
-                }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PolarisNexa 智慧許願牆｜會員資格即時審查與啟動</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            wishNavy: '#0B0F19',
+            wishCard: '#131B2E',
+            wishCyan: '#38BDF8',
+            wishGold: '#F59E0B',
+            wishPurple: '#8B5CF6'
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'star-twinkle': 'twinkle 3s ease-in-out infinite alternate'
+          },
+          keyframes: {
+            twinkle: {
+              '0%': { opacity: '0.3', transform: 'scale(0.8)' },
+              '100%': { opacity: '1', transform: 'scale(1.2)' }
             }
+          }
         }
-    </script>
-    <style>
-        body {
-            background-color: #0B0F19;
-            color: #F3F4F6;
-        }
-        .bg-grid-pattern {
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 32px 32px;
-        }
-        .text-gradient-cyan {
-            background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .text-gradient-gold {
-            background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .glass-card {
-            background: rgba(22, 31, 51, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glass-card:hover {
-            border-color: rgba(0, 242, 254, 0.3);
-        }
-    </style>
+      }
+    }
+  </script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans TC', 'Inter', sans-serif;
+      background-color: #0B0F19;
+      color: #F3F4F6;
+      overflow-x: hidden;
+    }
+    .bg-stars {
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 50px 80px, #38BDF8, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 100px 40px, #F59E0B, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 170px 130px, #8B5CF6, rgba(0,0,0,0));
+      background-repeat: repeat;
+      background-size: 220px 220px;
+    }
+    .glass-card {
+      background: rgba(19, 27, 46, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-gold-card {
+      background: rgba(245, 158, 11, 0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+  </style>
 </head>
-<body class="font-sans antialiased overflow-x-hidden selection:bg-brand-cyan selection:text-brand-dark">
+<body class="bg-wishNavy bg-stars antialiased selection:bg-wishGold selection:text-black">
 
-    <!-- Header Navigation -->
-    <header class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-gray-800/50 px-4 lg:px-8 py-3 transition-all duration-300">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-cyan to-brand-purple flex items-center justify-center font-bold text-white text-xl shadow-glow-cyan">
-                    P
-                </div>
-                <span class="font-extrabold text-xl tracking-wider text-white">Polaris<span class="text-gradient-cyan">Nexa</span></span>
-            </div>
-            
-            <a href="#register-form" class="hidden sm:inline-flex items-center px-5 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-brand-cyan to-brand-blue hover:opacity-90 transition-all shadow-glow-cyan">
-                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 啟動許願牆
-            </a>
+  <!-- Navigation Bar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-gray-800/80 px-4 py-3.5">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="p-1.5 bg-gradient-to-tr from-wishGold to-wishCyan rounded-lg text-black font-black text-xl flex items-center justify-center shadow-lg shadow-wishGold/20">
+          <i data-lucide="sparkles" class="w-5 h-5 text-gray-900"></i>
         </div>
-    </header>
+        <span class="text-xl font-black tracking-wider text-white">Polaris<span class="text-wishGold">Nexa</span> <span class="text-xs font-normal text-wishCyan px-2 py-0.5 rounded-full bg-wishCyan/10 border border-wishCyan/20">許願牆權益中心</span></span>
+      </div>
+      <div class="text-xs text-gray-400 flex items-center space-x-1">
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+        <span>資料庫即時連線中</span>
+      </div>
+    </div>
+  </nav>
 
-    <!-- Main Container -->
-    <main class="pt-20">
+  <!-- HERO 首屏 -->
+  <section class="relative pt-32 pb-12 md:pt-40 md:pb-16 px-4 overflow-hidden">
+    <div class="max-w-4xl mx-auto text-center relative z-10 space-y-6">
+      
+      <!-- 動態 推薦人 AT 代碼列 -->
+      <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-gold-card text-wishGold text-sm font-medium animate-pulse-slow">
+        <i data-lucide="user-check" class="w-4 h-4 text-wishGold"></i>
+        <span>您的專屬引路人 (推薦人代碼)：<strong id="display-ref-code" class="text-white underline decoration-wishGold tracking-wider font-mono">載入中...</strong></span>
+      </div>
 
-        <!-- HERO SECTION -->
-        <section class="relative min-h-[90vh] flex items-center justify-center pt-12 pb-20 px-4 bg-grid-pattern overflow-hidden">
-            <!-- Background Glow Orbs -->
-            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute top-1/3 right-10 w-80 h-80 bg-brand-purple/20 rounded-full blur-3xl pointer-events-none"></div>
+      <!-- 主標題 -->
+      <h1 class="text-3xl md:text-5xl font-black text-white leading-tight">
+        用 AI 賦能消費生活<br>
+        <span class="bg-gradient-to-r from-wishGold via-amber-200 to-wishCyan bg-clip-text text-transparent">
+          啟動許願牆讓大家一起幫你實現願望
+        </span>
+      </h1>
 
-            <div class="max-w-4xl mx-auto text-center relative z-10">
-                
-                <!-- Dynamic Ref Code Banner -->
-                <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-card border-brand-cyan/30 text-xs sm:text-sm font-medium mb-8 text-gray-300 animate-pulse">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span>您的專屬引路人代碼：</span>
-                    <span id="display-ref" class="font-bold text-gradient-gold text-base">載入中...</span>
-                </div>
+      <p class="text-base text-gray-300 max-w-xl mx-auto">
+        請輸入您的 <span class="text-wishGold font-mono font-bold">ATxxxxxx</span> 編號或系統帳號，即時審查您的 <span class="text-wishCyan font-bold">10,000 PV</span> 許願牆啟動資格。
+      </p>
 
-                <!-- Main Title -->
-                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight sm:leading-tight lg:leading-tight tracking-tight mb-6">
-                    用 AI 賦能消費生活<br>
-                    <span class="text-gradient-cyan">啟動許願牆</span> 讓大家一起幫你實現願望
-                </h1>
+    </div>
+  </section>
 
-                <!-- Subtitle -->
-                <p class="text-base sm:text-xl text-gray-300 max-w-2xl mx-auto font-normal leading-relaxed mb-10">
-                    告別孤軍奮戰！只要體驗優質日常用品累積點數達 <span class="text-brand-gold font-bold underline decoration-brand-gold/40">10,000 PV</span>，即可解鎖團隊專屬的許願牆與自動化管理系統，讓夥伴的互助力量為您加速實現目標！
-                </p>
-
-                <!-- CTA Button -->
-                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
-                    <a href="#register-form" class="w-full sm:w-auto px-8 py-4 rounded-2xl text-lg font-bold text-gray-900 bg-gradient-to-r from-brand-gold to-brand-goldGlow hover:brightness-110 transition-all shadow-glow-gold flex items-center justify-center space-x-2">
-                        <span>🚀 立即卡位啟動許願牆</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
-                    </a>
-                </div>
-
-                <!-- Features Badges -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-gray-400 max-w-3xl mx-auto border-t border-gray-800/80 pt-8">
-                    <div class="flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-shield-halved text-brand-cyan"></i>
-                        <span>C2C 點對點透明互助</span>
-                    </div>
-                    <div class="flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-bolt text-brand-gold"></i>
-                        <span>10,000 PV 低門檻啟動</span>
-                    </div>
-                    <div class="flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-robot text-brand-purple"></i>
-                        <span>AI 智慧輔助運算</span>
-                    </div>
-                    <div class="flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-rotate text-emerald-400"></i>
-                        <span>48H 動態流轉機制</span>
-                    </div>
-                </div>
-
-                <!-- Disclaimer Badge -->
-                <p class="text-xs text-gray-500 mt-8 max-w-lg mx-auto">
-                    註：本系統與活動為 PolarisNexa 團隊內部研發之輔助工具與社群互助方案，非任何特定公司官方活動。
-                </p>
-
+  <!-- 核心區域：會員查詢與資格啟動面板 -->
+  <section id="verify-section" class="py-8 px-4 relative">
+    <div class="max-w-2xl mx-auto">
+      
+      <div class="glass-card p-8 md:p-10 rounded-3xl border border-gray-700/80 relative shadow-2xl">
+        
+        <!-- 步驟 A: 輸入會員 AT 編號查詢 -->
+        <div class="mb-8 p-6 rounded-2xl bg-gray-950/80 border border-gray-800 space-y-4">
+          <label class="block text-sm font-bold text-gray-200 flex items-center justify-between">
+            <span>🔍 第一步：驗證您的會員身分 (AT 代碼)</span>
+            <span class="text-xs text-wishCyan">即時連動 1_會員名冊</span>
+          </label>
+          <div class="flex gap-3">
+            <div class="relative flex-1">
+              <input type="text" id="input-search-mid" placeholder="請輸入您的合作平台編號 (例: AT4051)"
+                class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 pl-11 text-white font-mono uppercase focus:border-wishCyan focus:outline-none">
+              <i data-lucide="search" class="w-5 h-5 text-gray-500 absolute left-3.5 top-3.5"></i>
             </div>
-        </section>
-
-        <!-- SYSTEM ADVANTAGES SECTION -->
-        <section class="py-20 px-4 relative border-t border-gray-800/50">
-            <div class="max-w-7xl mx-auto">
-                <div class="text-center mb-16">
-                    <h2 class="text-2xl sm:text-4xl font-extrabold text-white mb-4">
-                        為什麼選擇 <span class="text-gradient-cyan">PolarisNexa 許願牆</span>？
-                    </h2>
-                    <p class="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
-                        結合創新科技與社群共榮機制，幫助每一位成員輕鬆邁向消費致富與目標實現。
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Feature 1 -->
-                    <div class="glass-card p-8 rounded-3xl transition-all hover:-translate-y-1">
-                        <div class="w-14 h-14 rounded-2xl bg-brand-cyan/10 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan text-2xl mb-6 shadow-glow-cyan">
-                            <i class="fa-solid fa-coins"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-3">超低 10,000 PV 門檻</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            僅需體驗優質日常用品輕鬆累積 10,000 PV，無負擔即可解鎖全套許願牆參與與資格運算。
-                        </p>
-                    </div>
-
-                    <!-- Feature 2 -->
-                    <div class="glass-card p-8 rounded-3xl transition-all hover:-translate-y-1">
-                        <div class="w-14 h-14 rounded-2xl bg-brand-purple/10 border border-brand-purple/30 flex items-center justify-center text-brand-purple text-2xl mb-6 shadow-glow-purple">
-                            <i class="fa-solid fa-microchip"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-3">AI 智慧排線與營運</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            獨家後台演算法自動對接組織平衡與卡位分析，讓團隊資源最大化發揮，告別傳統盲目推廣。
-                        </p>
-                    </div>
-
-                    <!-- Feature 3 -->
-                    <div class="glass-card p-8 rounded-3xl transition-all hover:-translate-y-1">
-                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl mb-6">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-3">48 小時動態流轉</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            設計精準的超時自動處置與團隊發展基金銜接機制，確保各支脈熱度與互助進度持續向前推進。
-                        </p>
-                    </div>
-
-                    <!-- Feature 4 -->
-                    <div class="glass-card p-8 rounded-3xl transition-all hover:-translate-y-1">
-                        <div class="w-14 h-14 rounded-2xl bg-brand-gold/10 border border-brand-gold/30 flex items-center justify-center text-brand-gold text-2xl mb-6 shadow-glow-gold">
-                            <i class="fa-solid fa-handshake-angle"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-3">點對點透明互助</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            C2C 贊助資金直接對接，搭配合規明確的系統服務費規範，打造零黑箱、高信任度的共好生態。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- COMMUNITY BLUEPRINT SECTION -->
-        <section class="py-20 px-4 bg-brand-card/30 border-t border-gray-800/50">
-            <div class="max-w-5xl mx-auto">
-                <div class="text-center mb-16">
-                    <h2 class="text-2xl sm:text-4xl font-extrabold text-white mb-4">
-                        社群互助與倍增藍圖
-                    </h2>
-                    <p class="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
-                        從 2x2 矩陣出發，讓每一份日常消費累積成強大的夥伴共榮網絡
-                    </p>
-                </div>
-
-                <!-- Matrix Flow Diagram -->
-                <div class="glass-card p-8 sm:p-12 rounded-3xl border border-gray-800">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-                        
-                        <!-- Step 1 -->
-                        <div class="text-center p-6 rounded-2xl bg-brand-dark/50 border border-gray-800">
-                            <div class="w-12 h-12 rounded-full bg-brand-cyan/20 text-brand-cyan flex items-center justify-center font-bold text-lg mx-auto mb-4">
-                                01
-                            </div>
-                            <h4 class="font-bold text-white text-lg mb-2">消費解鎖</h4>
-                            <p class="text-xs text-gray-400 leading-relaxed">
-                                體驗優質生活用品，個人消費滿 10,000 PV 即可向系統提交啟動申請。
-                            </p>
-                        </div>
-
-                        <!-- Step 2 -->
-                        <div class="text-center p-6 rounded-2xl bg-brand-dark/50 border border-brand-cyan/30 shadow-glow-cyan">
-                            <div class="w-12 h-12 rounded-full bg-brand-gold/20 text-brand-gold flex items-center justify-center font-bold text-lg mx-auto mb-4">
-                                02
-                            </div>
-                            <h4 class="font-bold text-white text-lg mb-2">許願牆卡位</h4>
-                            <p class="text-xs text-gray-400 leading-relaxed">
-                                依序進入 2x2 智慧矩陣，接收來自團隊輔導與 AI 自動排線的點對點互助。
-                            </p>
-                        </div>
-
-                        <!-- Step 3 -->
-                        <div class="text-center p-6 rounded-2xl bg-brand-dark/50 border border-gray-800">
-                            <div class="w-12 h-12 rounded-full bg-brand-purple/20 text-brand-purple flex items-center justify-center font-bold text-lg mx-auto mb-4">
-                                03
-                            </div>
-                            <h4 class="font-bold text-white text-lg mb-2">願望實現循環</h4>
-                            <p class="text-xs text-gray-400 leading-relaxed">
-                                隨著矩陣層級擴展，獲得資金贊助與資源網絡，達成個人願望清單。
-                            </p>
-                        </div>
-
-                    </div>
-
-                    <div class="mt-10 p-4 rounded-xl bg-gray-900/80 border border-gray-800 text-center">
-                        <p class="text-xs sm:text-sm text-gray-300">
-                            💡 <span class="font-semibold text-brand-gold">簡單二分法倍增原理：</span> 透過 2 $\rightarrow$ 4 $\rightarrow$ 8 $\rightarrow$ 16 $\rightarrow$ 32 機制，引導資金與資源流暢運轉。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- REGISTRATION FORM SECTION -->
-        <section id="register-form" class="py-20 px-4 relative">
-            <div class="max-w-3xl mx-auto">
-                <div class="glass-card p-6 sm:p-12 rounded-3xl border border-brand-cyan/20 shadow-glow-cyan relative overflow-hidden">
-                    
-                    <!-- Decorative Circle -->
-                    <div class="absolute -top-12 -right-12 w-40 h-40 bg-brand-cyan/10 rounded-full blur-2xl"></div>
-
-                    <div class="text-center mb-10">
-                        <span class="text-xs font-semibold uppercase tracking-widest text-brand-cyan mb-2 block">Application Form</span>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">
-                            卡位啟動許願牆表單
-                        </h2>
-                        <p class="text-gray-400 text-xs sm:text-sm mt-2">
-                            請填寫以下資料，提交後系統將由專人與 AI 自動幫您安排驗證與卡位。
-                        </p>
-                    </div>
-
-                    <!-- Submission Status Alert -->
-                    <div id="status-alert" class="hidden mb-6 p-4 rounded-xl text-sm font-medium"></div>
-
-                    <form id="wishwall-form" class="space-y-6">
-                        <!-- Referral Code (Readonly) -->
-                        <div>
-                            <label class="block text-xs font-medium text-gray-300 mb-2">
-                                引路人 / 推薦人代碼 <span class="text-brand-cyan">*</span>
-                            </label>
-                            <input type="text" id="input-ref-code" name="refCode" readonly
-                                class="w-full px-4 py-3 rounded-xl bg-brand-dark/80 border border-brand-border text-brand-gold font-bold focus:outline-none cursor-not-allowed">
-                        </div>
-
-                        <!-- Full Name & Phone -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div>
-                                <label for="user-name" class="block text-xs font-medium text-gray-300 mb-2">
-                                    真實姓名 <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text" id="user-name" name="name" required placeholder="請輸入您的真實姓名"
-                                    class="w-full px-4 py-3 rounded-xl bg-brand-dark border border-brand-border text-white focus:border-brand-cyan focus:outline-none transition-colors">
-                            </div>
-
-                            <div>
-                                <label for="user-phone" class="block text-xs font-medium text-gray-300 mb-2">
-                                    聯絡電話 <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="tel" id="user-phone" name="phone" required placeholder="例：0912345678"
-                                    class="w-full px-4 py-3 rounded-xl bg-brand-dark border border-brand-border text-white focus:border-brand-cyan focus:outline-none transition-colors">
-                            </div>
-                        </div>
-
-                        <!-- LINE UID & Partner ID -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div>
-                                <label for="line-uid" class="block text-xs font-medium text-gray-300 mb-2">
-                                    LINE UID / 顯示名稱 <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text" id="line-uid" name="lineUid" required placeholder="LINE ID 或 UID"
-                                    class="w-full px-4 py-3 rounded-xl bg-brand-dark border border-brand-border text-white focus:border-brand-cyan focus:outline-none transition-colors">
-                            </div>
-
-                            <div>
-                                <label for="partner-id" class="block text-xs font-medium text-gray-300 mb-2">
-                                    合作平台會員編號 <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text" id="partner-id" name="partnerId" required placeholder="請填寫合作平台會員號"
-                                    class="w-full px-4 py-3 rounded-xl bg-brand-dark border border-brand-border text-white focus:border-brand-cyan focus:outline-none transition-colors">
-                            </div>
-                        </div>
-
-                        <!-- Accumulated Personal PV -->
-                        <div>
-                            <label for="personal-pv" class="block text-xs font-medium text-gray-300 mb-2">
-                                個人累積 PV 點數 <span class="text-brand-gold">(建議累積達 10,000 PV 以上)</span>
-                            </label>
-                            <input type="number" id="personal-pv" name="personalPv" min="0" placeholder="例如：10000"
-                                class="w-full px-4 py-3 rounded-xl bg-brand-dark border border-brand-border text-white focus:border-brand-cyan focus:outline-none transition-colors">
-                        </div>
-
-                        <!-- Bank Info for C2C Transfer -->
-                        <div>
-                            <label for="bank-info" class="block text-xs font-medium text-gray-300 mb-2">
-                                銀行收款資訊 <span class="text-gray-400">(供 C2C 夥伴互助款項轉入驗證)</span>
-                            </label>
-                            <input type="text" id="bank-info" name="bankInfo" placeholder="銀行代碼 - 分行 - 戶名 - 帳號"
-                                class="w-full px-4 py-3 rounded-xl bg-brand-dark border border-brand-border text-white focus:border-brand-cyan focus:outline-none transition-colors">
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" id="btn-submit"
-                            class="w-full py-4 rounded-xl text-base font-bold text-gray-900 bg-gradient-to-r from-brand-cyan via-brand-blue to-brand-gold hover:opacity-95 transition-all shadow-glow-cyan flex items-center justify-center space-x-2">
-                            <span>🚀 送出申請並啟動許願牆</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="py-8 px-4 border-t border-gray-800 text-center text-xs text-gray-500">
-        <div class="max-w-7xl mx-auto space-y-3">
-            <p>© 2026 PolarisNexa Team. All rights reserved.</p>
-            <p class="max-w-2xl mx-auto">
-                本網站所載之系統與社群互助模式屬 PolarisNexa 團隊內部研發與學習使用，非任何特定公司之官方營運活動。
-            </p>
+            <button type="button" id="btn-check-pv"
+              class="px-6 py-3 rounded-xl bg-wishCyan text-gray-950 font-bold hover:brightness-110 transition flex items-center space-x-1">
+              <span>查詢資格</span>
+            </button>
+          </div>
         </div>
-    </footer>
 
-    <!-- JavaScript Core Logic -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. URL Parameter Parsing (?ref=)
-            const urlParams = new URLSearchParams(window.location.search);
-            const refCode = urlParams.get('ref') || 'AI193495'; // Default fallback code
-            
-            // 2. Display in Hero section
-            const displayRefEl = document.getElementById('display-ref');
-            if (displayRefEl) {
-                displayRefEl.textContent = refCode;
-            }
-            
-            // 3. Fill in Form Readonly Field
-            const inputRefEl = document.getElementById('input-ref-code');
-            if (inputRefEl) {
-                inputRefEl.value = refCode;
-            }
+        <!-- 步驟 B: 資格結果展示面板 -->
+        <div id="status-panel" class="hidden mb-8 p-6 rounded-2xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-800">
+            <div>
+              <span class="text-xs text-gray-400 block">會員姓名</span>
+              <strong id="res-name" class="text-lg text-white">--</strong>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-gray-400 block">個人累積 PV (N欄)</span>
+              <strong id="res-pv" class="text-xl font-mono text-wishCyan">0 PV</strong>
+            </div>
+          </div>
 
-            // 4. Form Submission Handling
-            const form = document.getElementById('wishwall-form');
-            const alertBox = document.getElementById('status-alert');
-            const submitBtn = document.getElementById('btn-submit');
+          <!-- 審查狀態 Badge -->
+          <div id="status-badge" class="p-4 rounded-xl text-center font-bold text-sm">
+            <!-- 動態插入：資格符合 / 未達標 -->
+          </div>
+        </div>
 
-            // ⚠️ 預留的 Google Apps Script Web App Endpoint 網址
-            // 部署 GAS Web App 後請將下方的 URL 替換為您的 Exec 網址
-            const GAS_WEB_APP_URL = 'YOUR_GAS_WEB_APP_ENDPOINT_URL_HERE';
+        <!-- 步驟 C: 確定啟動表單 (驗證通過後解鎖) -->
+        <form id="wishwall-form" class="space-y-5">
+          
+          <input type="hidden" id="input-ref-code" name="refCode">
+          <input type="hidden" id="input-member-id" name="memberId">
 
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
+          <div>
+            <label class="block text-xs font-bold text-gray-300 uppercase mb-1">
+              LINE ID 或 LINE 顯示名稱 <span class="text-rose-400">*</span>
+            </label>
+            <input type="text" id="input-line" required placeholder="用於許願對接通知"
+              class="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-wishGold focus:outline-none">
+          </div>
 
-                // UI Loading State
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> 資料傳送中...';
-                alertBox.classList.add('hidden');
+          <div>
+            <label class="block text-xs font-bold text-gray-300 uppercase mb-1">
+              銀行收款資訊 (接收 C2C 許願贊助) <span class="text-rose-400">*</span>
+            </label>
+            <input type="text" id="input-bank" required placeholder="銀行代碼 - 分行 - 戶名 - 帳號"
+              class="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-wishGold focus:outline-none">
+          </div>
 
-                // Form Data Extraction
-                const formData = {
-                    refCode: form.refCode.value,
-                    name: form.name.value,
-                    phone: form.phone.value,
-                    lineUid: form.lineUid.value,
-                    partnerId: form.partnerId.value,
-                    personalPv: form.personalPv.value || 0,
-                    bankInfo: form.bankInfo.value || '未填寫',
-                    timestamp: new Date().toISOString()
-                };
+          <!-- 啟動按鈕 (預設禁用，需查驗合格) -->
+          <button type="submit" id="submit-btn" disabled
+            class="w-full py-4 rounded-xl bg-gray-800 text-gray-500 font-black text-lg cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2">
+            <i data-lucide="lock" class="w-5 h-5"></i>
+            <span>請先完成 AT 代碼資格查詢驗證</span>
+          </button>
 
-                try {
-                    // Check if GAS Endpoint is configured
-                    if (GAS_WEB_APP_URL !== 'YOUR_GAS_WEB_APP_ENDPOINT_URL_HERE') {
-                        const response = await fetch(GAS_WEB_APP_URL, {
-                            method: 'POST',
-                            mode: 'no-cors', // standard GAS post mode
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(formData)
-                        });
-                    } else {
-                        // Simulated delay when endpoint is in preview mode
-                        await new Promise(resolve => setTimeout(resolve, 1500));
-                        console.log('Form submission preview mode (formData):', formData);
-                    }
+        </form>
 
-                    // Success Feedback
-                    showAlert('success', '🎉 申請已順利送出！系統已記錄您的資料，引路人與 AI 小幫手將於近期與您聯繫驗證卡位。');
-                    form.reset();
-                    inputRefEl.value = refCode; // Restore ref code
+        <div id="form-message" class="hidden mt-6 p-4 rounded-xl text-center text-sm font-medium"></div>
 
-                } catch (error) {
-                    console.error('Submission error:', error);
-                    showAlert('error', '⚠️ 傳送失敗，請檢查網路連線或稍後再試。');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span>🚀 送出申請並啟動許願牆</span>';
-                }
-            });
+      </div>
+    </div>
+  </section>
 
-            // Helper function to render alert UI
-            function showAlert(type, message) {
-                alertBox.classList.remove('hidden', 'bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400', 'bg-rose-500/10', 'border-rose-500/30', 'text-rose-400');
-                alertBox.classList.add('border');
+  <!-- 頁尾 -->
+  <footer class="py-10 border-t border-gray-800/80 bg-gray-950 text-center text-gray-500 text-xs space-y-2">
+    <p>PolarisNexa Team System © 2026</p>
+    <p class="text-gray-600">本系統與活動為 PolarisNexa 團隊內部研發之輔助工具，與任何特定商業公司官方無關。</p>
+  </footer>
 
-                if (type === 'success') {
-                    alertBox.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
-                } else {
-                    alertBox.classList.add('bg-rose-500/10', 'border-rose-500/30', 'text-rose-400');
-                }
+  <!-- 前端 JavaScript -->
+  <script>
+    const GAS_WEB_APP_URL = "YOUR_GAS_WEB_APP_URL_HERE";
 
-                alertBox.innerHTML = message;
-            }
-        });
-    </script>
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+
+      // 1. 自動讀取網址的推薦人 AT 代碼 ?ref=ATxxxxx
+      const urlParams = new URLSearchParams(window.location.search);
+      const refCode = urlParams.get('ref') || 'AT193495'; // 預設代理 AT 編號
+      const defaultMid = urlParams.get('mid') || '';
+
+      document.getElementById('display-ref-code').textContent = refCode;
+      document.getElementById('input-ref-code').value = refCode;
+
+      if (defaultMid) {
+        document.getElementById('input-search-mid').value = defaultMid;
+      }
+
+      // 2. 即時查詢會員 PV 與審查資格 (比對系統編號與 AT 欄位)
+      const checkBtn = document.getElementById('btn-check-pv');
+      const statusPanel = document.getElementById('status-panel');
+      const statusBadge = document.getElementById('status-badge');
+      const submitBtn = document.getElementById('submit-btn');
+
+      checkBtn.addEventListener('click', async () => {
+        const mid = document.getElementById('input-search-mid').value.trim();
+        if (!mid) {
+          alert("請輸入您的 AT 編號或系統會員編號！");
+          return;
+        }
+
+        checkBtn.disabled = true;
+        checkBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>查詢中...</span>`;
+        lucide.createIcons();
+
+        try {
+          let memberInfo = null;
+
+          if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
+            // 💡 模擬測試數據
+            memberInfo = {
+              name: "測試會員",
+              personalPV: 12000,
+              pvStatus: "已驗證"
+            };
+          } else {
+            const res = await fetch(`${GAS_WEB_APP_URL}?action=getMemberStatus&mid=${encodeURIComponent(mid)}`);
+            memberInfo = await res.json();
+          }
+
+          // 顯示資訊面板
+          statusPanel.classList.remove('hidden');
+          document.getElementById('res-name').textContent = memberInfo.name || "未登錄";
+          document.getElementById('res-pv').textContent = `${(memberInfo.personalPV || 0).toLocaleString()} PV`;
+          document.getElementById('input-member-id').value = mid;
+
+          // 判定資格：個人 PV >= 10,000 或狀態為「已驗證」
+          const isEligible = (memberInfo.personalPV >= 10000 || memberInfo.pvStatus === "已驗證");
+
+          if (isEligible) {
+            statusPanel.className = "mb-8 p-6 rounded-2xl bg-emerald-950/40 border border-emerald-500/30";
+            statusBadge.className = "p-4 rounded-xl text-center font-bold text-sm bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+            statusBadge.innerHTML = `✨ 審查通過！您的累積消費達到 10,000 PV 門檻，可立即啟動許願牆！`;
+
+            submitBtn.disabled = false;
+            submitBtn.className = "w-full py-4 rounded-xl bg-gradient-to-r from-wishGold via-amber-500 to-amber-600 text-gray-950 font-black text-lg hover:brightness-110 shadow-xl cursor-pointer transition flex items-center justify-center space-x-2";
+            submitBtn.innerHTML = `<i data-lucide="sparkle" class="w-5 h-5 fill-current"></i><span>🚀 資格確認：立刻啟動許願牆</span>`;
+          } else {
+            statusPanel.className = "mb-8 p-6 rounded-2xl bg-rose-950/40 border border-rose-500/30";
+            statusBadge.className = "p-4 rounded-xl text-center font-bold text-sm bg-rose-500/20 text-rose-300 border border-rose-500/40";
+            statusBadge.innerHTML = `⚠️ 尚不符合資格：個人消費累積需達 10,000 PV (目前還差 ${(10000 - memberInfo.personalPV).toLocaleString()} PV)`;
+
+            submitBtn.disabled = true;
+            submitBtn.className = "w-full py-4 rounded-xl bg-gray-800 text-gray-500 font-black text-lg cursor-not-allowed flex items-center justify-center space-x-2";
+            submitBtn.innerHTML = `<i data-lucide="lock" class="w-5 h-5"></i><span>未達 10,000 PV 門檻，暫無法啟動</span>`;
+          }
+
+        } catch (err) {
+          alert("查詢失敗，請確認 API 連線或輸入之 AT 編號。");
+          console.error(err);
+        } finally {
+          checkBtn.disabled = false;
+          checkBtn.innerHTML = `<span>查詢資格</span>`;
+          lucide.createIcons();
+        }
+      });
+
+    });
+  </script>
 </body>
 </html>
