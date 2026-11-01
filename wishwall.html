@@ -94,7 +94,7 @@
   <!-- 前端互動與 API 聯絡邏輯 -->
   <script>
     // 💡 請在此處填入您的 Google Apps Script 部署網址 (Web App URL)
-    const GAS_WEB_APP_URL = "YOUR_GAS_WEB_APP_URL_HERE";
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHUFyh_85Bz8pSfJsJMP2dlvNTu6K97McSGKfOknbKUHyx52XxA36s6F2A4_57j6M/exec";
 
     window.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
@@ -115,7 +115,7 @@
       try {
         // 向 GAS 發送查詢請求
         let res, data;
-        if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
+        if (GAS_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbyHUFyh_85Bz8pSfJsJMP2dlvNTu6K97McSGKfOknbKUHyx52XxA36s6F2A4_57j6M/exec") {
           // 測試模擬數據
           data = { found: true, memberId: mid, name: "測試夥伴", personalPV: 15000, pvStatus: "已驗證", isActivated: false };
         } else {
@@ -213,7 +213,7 @@
         btn.textContent = "正在寫入資料庫...";
 
         try {
-          if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
+          if (GAS_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbyHUFyh_85Bz8pSfJsJMP2dlvNTu6K97McSGKfOknbKUHyx52XxA36s6F2A4_57j6M/exec") {
             alert("模擬啟動成功！");
             location.reload();
             return;
