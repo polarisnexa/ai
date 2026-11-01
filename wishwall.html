@@ -113,15 +113,10 @@
       document.getElementById('ui-member-id').textContent = mid;
 
       try {
-        // 向 GAS 發送查詢請求
-        let res, data;
-        if (GAS_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbyHUFyh_85Bz8pSfJsJMP2dlvNTu6K97McSGKfOknbKUHyx52XxA36s6F2A4_57j6M/exec") {
-          // 測試模擬數據
-          data = { found: true, memberId: mid, name: "測試夥伴", personalPV: 15000, pvStatus: "已驗證", isActivated: false };
-        } else {
-          res = await fetch(`${GAS_WEB_APP_URL}?action=getMemberStatus&mid=${encodeURIComponent(mid)}`);
-          data = await res.json();
-        }
+        // 直接向 GAS 發送真實查詢請求
+        const targetUrl = `${GAS_WEB_APP_URL}?action=getMemberStatus&mid=${encodeURIComponent(mid)}`;
+        const res = await fetch(targetUrl);
+        const data = await res.json();
 
         if (!data.found) {
           document.getElementById('dynamic-content-area').innerHTML = `
@@ -213,12 +208,7 @@
         btn.textContent = "正在寫入資料庫...";
 
         try {
-          if (GAS_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbyHUFyh_85Bz8pSfJsJMP2dlvNTu6K97McSGKfOknbKUHyx52XxA36s6F2A4_57j6M/exec") {
-            alert("模擬啟動成功！");
-            location.reload();
-            return;
-          }
-
+          
           const res = await fetch(GAS_WEB_APP_URL, {
             method: 'POST',
             body: JSON.stringify({ action: "activateWishWall", memberId: mid, lineId: lineId, bankInfo: bankInfo })
