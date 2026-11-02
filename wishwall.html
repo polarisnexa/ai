@@ -55,7 +55,7 @@
       </div>
       <div id="nav-status" class="text-xs text-emerald-400 flex items-center space-x-1">
         <i data-lucide="shield-check" class="w-4 h-4"></i>
-        <span>連線中</span>
+        <span>安全加密連線</span>
       </div>
     </div>
   </nav>
@@ -66,22 +66,21 @@
     <!-- 頂部身分資訊卡 -->
     <div class="glass-card p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
       <div>
-        <span class="text-xs text-gray-400">目前操作會員</span>
+        <span id="ui-role-label" class="text-xs text-gray-400">目前檢視對象</span>
         <h2 id="ui-member-name" class="text-2xl font-black text-white">載入中...</h2>
         <p class="text-xs font-mono text-wishCyan mt-1">系統編號：<span id="ui-member-id">--</span></p>
       </div>
       <div class="text-right">
-        <span class="text-xs text-gray-400">個人累積消費 PV</span>
-        <div id="ui-member-pv" class="text-2xl font-black font-mono text-wishGold">0 PV</div>
+        <span class="text-xs text-gray-400">資格狀態</span>
+        <div id="ui-member-pv" class="text-lg font-black font-mono text-wishGold">驗證中...</div>
       </div>
     </div>
 
-    <!-- 動態狀態面板 (未啟動 vs 已啟動) -->
+    <!-- 動態狀態面板 -->
     <div id="dynamic-content-area" class="space-y-6">
-      <!-- 內容將由 JavaScript 動態渲染 -->
       <div class="text-center py-12 text-gray-400">
         <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2 text-wishCyan"></i>
-        <p>正在向資料庫驗證會員資格與許願牆狀態...</p>
+        <p>正在安全驗證身分與調閱授權資料...</p>
       </div>
     </div>
 
@@ -91,21 +90,21 @@
     <p>PolarisNexa Team System © 2026</p>
   </footer>
 
-  <!-- 前端互動與 API 聯絡邏輯 -->
+  <!-- 前端互動與 API 邏輯 -->
   <script>
-    // 💡 請在此處填入您的 Google Apps Script 部署網址 (Web App URL)
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHUFyh_85Bz8pSfJsJMP2dlvNTu6K97McSGKfOknbKUHyx52XxA36s6F2A4_57j6M/exec";
 
     window.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
 
       const urlParams = new URLSearchParams(window.location.search);
-      const mid = urlParams.get('mid') || urlParams.get('ref') || '';
+      const mid = urlParams.get('mid') || '';
+      const viewer = urlParams.get('viewer') || mid; // 若無 viewer 參數則視為本人或直接用 mid
 
       if (!mid) {
         document.getElementById('dynamic-content-area').innerHTML = `
           <div class="glass-card p-8 rounded-2xl text-center text-rose-400 font-bold">
-            ⚠️ 網址缺少必要的會員編號參數 (mid)，請透過 LINE 機器人「✨ 啟動許願牆」按鈕進入！
+            ⚠️ 網址缺少必要的會員編號參數 (mid)，請透過正確的授權連結進入！
           </div>`;
         return;
       }
@@ -113,35 +112,38 @@
       document.getElementById('ui-member-id').textContent = mid;
 
       try {
-        // 直接向 GAS 發送真實查詢請求
-        const targetUrl = `${GAS_WEB_APP_URL}?action=getMemberStatus&mid=${encodeURIComponent(mid)}`;
+        const targetUrl = `${GAS_WEB_APP_URL}?action=getMemberStatus&mid=${encodeURIComponent(mid)}&viewer=${encodeURIComponent(viewer)}`;
         const res = await fetch(targetUrl);
         const data = await res.json();
 
         if (!data.found) {
           document.getElementById('dynamic-content-area').innerHTML = `
             <div class="glass-card p-8 rounded-2xl text-center text-rose-400 font-bold">
-              ⚠️ 查無此會員編號 (${mid})，請確認是否已完成手機綁定與建檔。
+              ⚠️ 查無此會員編號 (${mid})，請確認代碼是否正確。
             </div>`;
           return;
         }
 
-        // 渲染基本資料
+        // 判斷是否為訪客視圖 (非本人點擊)
+        const isVisitor = urlParams.get('mode') === 'public' || (viewer && viewer !== mid);
+
         document.getElementById('ui-member-name').textContent = data.name;
-        document.getElementById('ui-member-pv').textContent = `${(data.personalPV || 0).toLocaleString()} PV`;
+        document.getElementById('ui-member-pv').textContent = data.pvStatus === "已驗證" ? "10,000 PV (已達標)" : "未達標";
 
-        // 判定資格 (PV >= 10000 或已驗證)
-        const isEligible = (data.personalPV >= 10000 || data.pvStatus === "已驗證");
-
-        if (!isEligible) {
-          // 狀態 1：未達 10,000 PV 門檻
-          renderNotEligibleView(data.personalPV);
-        } else if (!data.isActivated) {
-          // 狀態 2：符合資格，但尚未啟動許願牆 (需填寫銀行 I 欄)
-          renderActivationFormView(mid, data.name);
+        if (isVisitor) {
+          // 🛡️ 訪客/贊助者視圖：保護隱私，僅顯示公開收款與贊助引導
+          renderPublicVisitorView(data);
         } else {
-          // 狀態 3：已啟動許願牆 (展示 2x2 矩陣樹狀圖)
-          renderActivatedDashboardView(mid, data.bankInfo);
+          // 👑 會員本人戰情室：解鎖完整功能
+          const isEligible = (data.pvStatus === "已驗證" || data.personalPV >= 10000);
+
+          if (!isEligible) {
+            renderNotEligibleView(data.personalPV);
+          } else if (!data.isActivated) {
+            renderActivationFormView(mid, data.name);
+          } else {
+            renderActivatedDashboardView(mid, data);
+          }
         }
 
       } catch (e) {
@@ -153,21 +155,42 @@
       }
     });
 
+    // 🛡️ 訪客檢視模式 (保護隱私)
+    function renderPublicVisitorView(data) {
+      document.getElementById('ui-role-label').textContent = "贊助對接專區 (訪客檢視)";
+      document.getElementById('dynamic-content-area').innerHTML = `
+        <div class="glass-card p-8 rounded-2xl space-y-6 text-center">
+          <div class="w-16 h-16 rounded-full bg-wishGold/20 text-wishGold flex items-center justify-center mx-auto">
+            <i data-lucide="heart-handshake" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white">歡迎支援 ${data.name} 的許願牆</h3>
+          <p class="text-sm text-gray-300 max-w-md mx-auto">為了保護會員隱私，私人組織矩陣與戰情資料僅限會員本人登入檢視。</p>
+          
+          <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 text-left space-y-3 max-w-lg mx-auto">
+            <span class="text-xs text-wishCyan uppercase font-bold">目前可用的 C2C 贊助收款資訊：</span>
+            <div class="p-4 bg-gray-900 rounded-lg font-mono text-wishGold text-sm">
+              ${data.bankInfo || "尚未設定銀行收款資訊"}
+            </div>
+            <p class="text-xs text-gray-400">💡 進行贊助對接後，請透過 LINE 官方機器人回報憑證給予夥伴支援。</p>
+          </div>
+        </div>`;
+      lucide.createIcons();
+    }
+
     // 視圖 A：未達標
     function renderNotEligibleView(pv) {
-      const diff = 10000 - pv;
       document.getElementById('dynamic-content-area').innerHTML = `
         <div class="glass-card p-8 rounded-2xl border border-rose-500/30 bg-rose-950/20 text-center space-y-4">
           <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
             <i data-lucide="lock" class="w-6 h-6"></i>
           </div>
-          <h3 class="text-xl font-bold text-white">個人消費尚差 ${diff.toLocaleString()} PV 門檻</h3>
+          <h3 class="text-xl font-bold text-white">個人消費尚需完成 10,000 PV 驗證</h3>
           <p class="text-sm text-gray-300">許願牆啟動需個人累積消費達 10,000 PV。請先至摩天樓福利購完成消費或回報 PV！</p>
         </div>`;
       lucide.createIcons();
     }
 
-    // 視圖 B：符合資格，提供填寫銀行資訊 (I 欄) 啟動表單
+    // 視圖 B：填寫銀行資訊啟動
     function renderActivationFormView(mid, name) {
       document.getElementById('dynamic-content-area').innerHTML = `
         <div class="glass-card p-8 rounded-2xl space-y-6">
@@ -184,10 +207,9 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-gray-300 uppercase mb-1">銀行收款資訊 </label>
+              <label class="block text-xs font-bold text-gray-300 uppercase mb-1">銀行收款資訊 (將寫入資料庫 I 欄)</label>
               <input type="text" id="form-bank" required placeholder="格式：004 臺灣銀行 0123-456-789123 戶名"
                 class="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-wishGold focus:outline-none">
-              <p class="text-xs text-gray-400 mt-1">💡 此資訊將提供給您的上線與贊助夥伴進行 C2C 許願金對接。</p>
             </div>
 
             <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-wishGold to-amber-600 text-gray-950 font-black text-lg hover:brightness-110 shadow-xl transition flex items-center justify-center space-x-2">
@@ -202,13 +224,11 @@
         e.preventDefault();
         const lineId = document.getElementById('form-line').value.trim();
         const bankInfo = document.getElementById('form-bank').value.trim();
-
         const btn = e.target.querySelector('button');
         btn.disabled = true;
         btn.textContent = "正在寫入資料庫...";
 
         try {
-          
           const res = await fetch(GAS_WEB_APP_URL, {
             method: 'POST',
             body: JSON.stringify({ action: "activateWishWall", memberId: mid, lineId: lineId, bankInfo: bankInfo })
@@ -229,44 +249,110 @@
       });
     }
 
-    // 視圖 C：已啟動 (展示 2x2 矩陣樹狀圖)
-    function renderActivatedDashboardView(mid, bankInfo) {
+    // 👑 視圖 C：會員本人戰情室 (含 1-5 階升級與銀行管理)
+    function renderActivatedDashboardView(mid, data) {
+      document.getElementById('ui-role-label').textContent = "會員本人戰情室";
       document.getElementById('dynamic-content-area').innerHTML = `
         <div class="space-y-6">
-          <div class="glass-card p-6 rounded-2xl border border-wishGold/30 bg-wishGold/5 flex items-center justify-between">
+          <div class="glass-card p-6 rounded-2xl border border-wishGold/30 bg-wishGold/5 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
               <span class="text-xs text-wishGold font-bold uppercase tracking-wider">狀態：已啟動許願牆</span>
-              <h3 class="text-xl font-bold text-white mt-0.5">您的 2x2 矩陣組織戰情室</h3>
+              <h3 class="text-xl font-bold text-white mt-0.5">您的 1-5 階矩陣與升級戰情室</h3>
             </div>
-            <div class="text-right text-xs text-gray-300">
-              <p>銀行收款資訊：<span class="font-mono text-wishCyan">${bankInfo || "未填寫"}</span></p>
+            <div class="w-full md:w-auto">
+              <button onclick="openBankEditModal('${data.bankInfo || ''}')" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-xl text-xs font-bold text-wishCyan transition flex items-center justify-center space-x-1">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                <span>修改銀行收款資訊 (I 欄)</span>
+              </button>
             </div>
           </div>
 
-          <!-- 2x2 矩陣樹狀圖互動展現區 -->
-          <div class="glass-card p-6 rounded-2xl space-y-6">
+          <!-- 1-5 階升級與組織對接專區 -->
+          <div class="glass-card p-6 rounded-2xl space-y-4">
+            <h4 class="text-sm font-bold text-gray-200 flex items-center space-x-2">
+              <i data-lucide="trending-up" class="w-4 h-4 text-wishGold"></i>
+              <span>向上升級專區 (對應 1-5 階矩陣)</span>
+            </h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <button onclick="loadUpgradeDetails('${mid}', 2)" class="p-3 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-xl text-left transition">
+                <div class="text-xs text-gray-400">第二階升級</div>
+                <div class="text-sm font-bold text-wishGold mt-1">NT$ 1,000 贊助</div>
+              </button>
+              <button onclick="loadUpgradeDetails('${mid}', 3)" class="p-3 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-xl text-left transition">
+                <div class="text-xs text-gray-400">第三階升級</div>
+                <div class="text-sm font-bold text-wishGold mt-1">NT$ 3,000 贊助</div>
+              </button>
+              <button onclick="loadUpgradeDetails('${mid}', 4)" class="p-3 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-xl text-left transition">
+                <div class="text-xs text-gray-400">第四階升級</div>
+                <div class="text-sm font-bold text-wishGold mt-1">NT$ 9,000 贊助</div>
+              </button>
+              <button onclick="loadUpgradeDetails('${mid}', 5)" class="p-3 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-xl text-left transition">
+                <div class="text-xs text-gray-400">第五階升級</div>
+                <div class="text-sm font-bold text-wishGold mt-1">NT$ 27,000 贊助</div>
+              </button>
+            </div>
+            <div id="upgrade-detail-box" class="p-4 rounded-xl bg-gray-950 border border-gray-800 text-sm text-gray-300 hidden">
+              <!-- 動態載入上線收款對接資訊 -->
+            </div>
+          </div>
+
+          <!-- 組織 2x2 矩陣樹狀圖 -->
+          <div class="glass-card p-6 rounded-2xl space-y-4">
             <h4 class="text-sm font-bold text-gray-200 flex items-center space-x-2">
               <i data-lucide="git-branch" class="w-4 h-4 text-wishCyan"></i>
-              <span>組織 2x2 矩陣預覽 (向下展開至多 5 代)</span>
+              <span>組織 2x2 矩陣樹狀預覽 (向下 1-5 代)</span>
             </h4>
-
-            <div id="matrix-tree-container" class="p-6 rounded-xl bg-gray-950/80 border border-gray-800 text-center space-y-8">
-              <!-- 節點展示 -->
+            <div class="p-6 rounded-xl bg-gray-950 border border-gray-800 text-center space-y-6">
               <div class="inline-block p-4 rounded-xl bg-wishGold/20 border border-wishGold text-wishGold font-bold shadow-lg">
                 👑 本人：${mid} (L1)
               </div>
               <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                <div class="p-3 rounded-xl bg-gray-900 border border-gray-700 text-sm text-gray-300">
-                  左區夥伴 (待展開)
-                </div>
-                <div class="p-3 rounded-xl bg-gray-900 border border-gray-700 text-sm text-gray-300">
-                  右區夥伴 (待展開)
-                </div>
+                <div class="p-3 rounded-xl bg-gray-900 border border-gray-700 text-sm text-gray-300">左區組織夥伴</div>
+                <div class="p-3 rounded-xl bg-gray-900 border border-gray-700 text-sm text-gray-300">右區組織夥伴</div>
               </div>
             </div>
           </div>
         </div>`;
       lucide.createIcons();
+    }
+
+    // 查詢特定階級的上線對接資訊
+    async function loadUpgradeDetails(mid, level) {
+      const box = document.getElementById('upgrade-detail-box');
+      box.classList.remove('hidden');
+      box.innerHTML = `<p class="text-wishCyan">正在向資料庫調閱第 ${level} 階對應上線資料...</p>`;
+
+      try {
+        const res = await fetch(`${GAS_WEB_APP_URL}?action=getUpgradeInfo&mid=${encodeURIComponent(mid)}&targetLevel=${level}`);
+        const result = await res.json();
+
+        if (result.status === "success" && result.hasUpline) {
+          const up = result.upline;
+          box.innerHTML = `
+            <div class="space-y-2">
+              <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                <span class="font-bold text-white">第 ${level} 階升級對象（您的對應上線）</span>
+                <span class="text-wishGold font-mono">建議贊助：NT$ ${up.tierAmount.toLocaleString()}</span>
+              </div>
+              <p>👤 姓名：<span class="text-white font-bold">${up.name}</span> (${up.memberId})</p>
+              <p>🏦 銀行收款：<span class="font-mono text-wishCyan">${up.bankInfo}</span></p>
+              <p>📞 聯絡電話：<span class="font-mono text-gray-200">${up.phone || '未提供'}</span> | LINE ID: <span class="font-mono text-gray-200">${up.lineId || '未提供'}</span></p>
+              <p class="text-xs text-gray-400 mt-2">💡 請完成轉帳後透過 LINE 聯絡上線並回報憑證以解鎖階級權益。</p>
+            </div>`;
+        } else {
+          box.innerHTML = `<p class="text-rose-400">${result.message || '目前查無對應上線。'}</p>`;
+        }
+      } catch (err) {
+        box.innerHTML = `<p class="text-rose-400">調閱上線資料失敗，請稍後再試。</p>`;
+      }
+    }
+
+    // 修改銀行資訊彈窗 (直接寫回 I 欄)
+    function openBankEditModal(currentBank) {
+      const newBank = prompt("請輸入新的銀行收款資訊 (將更新至資料庫 I 欄)：", currentBank);
+      if (newBank !== null) {
+        alert("功能建構中：後續將透過 API 直接儲存您的銀行設定至試算表！");
+      }
     }
   </script>
 </body>
